@@ -103,7 +103,7 @@ bool read_file_nc_complex(const std::string &filename) {
   std::array<std::complex<double>, len_x> data_ri_out;
   int var_ri_id = 0;
   CHECK(nc_inq_varid(ncid, "data_ri", &var_ri_id));
-  CHECK(nc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
+  CHECK(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
                                    cpp_to_c_complex(data_ri_out.data())));
 
   auto success = check_data(data_ri_out);
@@ -111,7 +111,7 @@ bool read_file_nc_complex(const std::string &filename) {
   std::array<std::complex<double>, len_x> data_struct_out;
   int var_struct_id = 0;
   CHECK(nc_inq_varid(ncid, "data_struct", &var_struct_id));
-  CHECK(nc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
+  CHECK(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
                                    cpp_to_c_complex(data_struct_out.data())));
   success |= check_data(data_struct_out);
 

@@ -25,15 +25,15 @@ inline std::complex<double>* c_to_cpp_complex(double_complex* data) {
 extern "C" {
 #endif
 
-int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
+int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                const size_t *countp, const double_complex *op);
 
-int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
+int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
                                const size_t *countp, double_complex *ip);
 
-int nc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
+int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                const double_complex *data);
-int nc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
+int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                double_complex *data);
 
 #ifdef __cplusplus

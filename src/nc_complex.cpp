@@ -70,7 +70,7 @@ static constexpr size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
 } // namespace plasmafair
 
-int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
+int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                const size_t *countp,
                                const double _Complex *op) {
   return plasmafair::nc_put_vara_double_complex(
@@ -78,22 +78,22 @@ int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
       reinterpret_cast<const std::complex<double> *>(op));
 }
 
-int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
+int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
                                const size_t *countp, double _Complex *ip) {
   return plasmafair::nc_get_vara_double_complex(
       ncid, varid, startp, countp,
       reinterpret_cast<std::complex<double> *>(ip));
 }
 
-int nc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
+int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                const double_complex *data) {
-  return nc_put_vara_double_complex(ncid, varid, indexp,
+  return pfnc_put_vara_double_complex(ncid, varid, indexp,
                                     plasmafair::details::coord_one, data);
 }
 
-int nc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
+int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                double_complex *data) {
-  return nc_get_vara_double_complex(ncid, varid,
+  return pfnc_get_vara_double_complex(ncid, varid,
                                     plasmafair::details::coord_one,
                                     plasmafair::details::coord_one, data);
 }
