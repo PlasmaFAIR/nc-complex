@@ -9,7 +9,12 @@
 #include <string>
 #include <vector>
 
-#define CHECK(func) do { if (const auto res = (func)) { return res; } } while (0)
+#define CHECK(func)                                                                    \
+  do {                                                                                 \
+    if (const auto res = (func)) {                                                     \
+      return res;                                                                      \
+    }                                                                                  \
+  } while (0)
 
 using namespace std::string_view_literals;
 
@@ -25,10 +30,12 @@ bool file_has_complex_struct(int ncid, nc_type &typeidp) {
 
 /// Create complex datatype if it doesn't already exist
 int create_double_complex_struct(int ncid, nc_type &type_id) {
-  if (file_has_complex_struct(ncid, type_id)) return NC_NOERR;
+  if (file_has_complex_struct(ncid, type_id)) {
+    return NC_NOERR;
+  }
 
-  CHECK(nc_def_compound(ncid, sizeof(std::complex<double>),
-                        double_complex_struct_name, &type_id));
+  CHECK(nc_def_compound(ncid, sizeof(std::complex<double>), double_complex_struct_name,
+                        &type_id));
   CHECK(nc_insert_compound(ncid, type_id, "r", 0, NC_DOUBLE));
   CHECK(nc_insert_compound(ncid, type_id, "i", sizeof(double), NC_DOUBLE));
 
@@ -187,8 +194,7 @@ bool check_variable_is_double_complex(int ncid, int varid) {
 }
 
 int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
-                               const size_t *countp,
-                               const std::complex<double> *op);
+                               const size_t *countp, const std::complex<double> *op);
 
 int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
                                const size_t *countp, std::complex<double> *ip) {
@@ -219,10 +225,9 @@ int pfnc_get_double_complex_typeid(int ncid, int *complex_typeid) {
 // }
 
 int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
-                               const size_t *countp, double _Complex *ip) {
+                                 const size_t *countp, double _Complex *ip) {
   return plasmafair::nc_get_vara_double_complex(
-      ncid, varid, startp, countp,
-      reinterpret_cast<std::complex<double> *>(ip));
+      ncid, varid, startp, countp, reinterpret_cast<std::complex<double> *>(ip));
 }
 
 // int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
@@ -232,8 +237,7 @@ int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
 // }
 
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
-                               double_complex *data) {
-  return pfnc_get_vara_double_complex(ncid, varid,
-                                    plasmafair::details::coord_one,
-                                    plasmafair::details::coord_one, data);
+                                 double_complex *data) {
+  return pfnc_get_vara_double_complex(ncid, varid, plasmafair::details::coord_one,
+                                      plasmafair::details::coord_one, data);
 }

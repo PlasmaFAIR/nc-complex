@@ -81,7 +81,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
-ColumnLimit:     80
+ColumnLimit:     88
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
@@ -124,7 +124,7 @@ IndentPPDirectives: None
 IndentRequiresClause: true
 IndentWidth:     2
 IndentWrappedFunctionNames: false
-InsertBraces:    false
+InsertBraces:    true
 InsertNewlineAtEOF: false
 InsertTrailingCommas: None
 IntegerLiteralSeparator:
