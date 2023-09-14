@@ -60,13 +60,13 @@ int create_file(const std::string &filename) {
 /// Check that a complex array matches the expected result
 bool check_data(std::array<std::complex<double>, len_x> const &data_in) {
   if (data_in == data) {
-    printf("Success!\n");
+    printf("  Success!\n");
     return true;
   }
 
   printf("Failed:\n");
   for (const auto &elem : data_in) {
-    printf("%.1f %+.1f\n", elem.real(), elem.imag());
+    printf("  %.1f %+.1f\n", elem.real(), elem.imag());
   }
   return false;
 }
@@ -104,7 +104,7 @@ bool read_file_nc_complex(const std::string &filename) {
   int var_ri_id = 0;
   CHECK(nc_inq_varid(ncid, "data_ri", &var_ri_id));
   CHECK(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
-                                   cpp_to_c_complex(data_ri_out.data())));
+                                     cpp_to_c_complex(data_ri_out.data())));
 
   auto success = check_data(data_ri_out);
 
@@ -112,16 +112,26 @@ bool read_file_nc_complex(const std::string &filename) {
   int var_struct_id = 0;
   CHECK(nc_inq_varid(ncid, "data_struct", &var_struct_id));
   CHECK(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
-                                   cpp_to_c_complex(data_struct_out.data())));
+                                     cpp_to_c_complex(data_struct_out.data())));
   success |= check_data(data_struct_out);
 
   return success;
 }
 
 int main() {
-  if (create_file("test_test.nc"))
+  printf("Creating file... ");
+  if (create_file("test_test.nc")) {
     return EXIT_FAILURE;
+  }
+  printf("done!\n");
 
-  if (not read_file("test_test.nc"))
+  printf("nc_get_var, no type checking:\n");
+  if (not read_file("test_test.nc")) {
     return EXIT_FAILURE;
+  }
+
+  printf("pfnc_get_vara_double_complex, with type checking:\n");
+  if (not read_file_nc_complex("test_test.nc")) {
+    return EXIT_FAILURE;
+  }
 }
