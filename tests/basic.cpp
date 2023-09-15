@@ -8,13 +8,13 @@
 #include <netcdf.h>
 #include <string>
 
-#define CHECK(func)                                                            \
-  do {                                                                         \
-    if (const auto res = (func)) {                                             \
-      printf("Bailing out in file %s, line %d, error:%s.\n", __FILE__,         \
-             __LINE__, nc_strerror(res));                                      \
-      return res;                                                              \
-    }                                                                          \
+#define CHECK(func)                                                                    \
+  do {                                                                                 \
+    if (const auto res = (func)) {                                                     \
+      printf("Bailing out in file %s, line %d, error:%s.\n", __FILE__, __LINE__,       \
+             nc_strerror(res));                                                        \
+      return res;                                                                      \
+    }                                                                                  \
   } while (0)
 
 constexpr int len_x = 3;
@@ -22,6 +22,8 @@ constexpr int len_ri = 2;
 
 constexpr std::array<std::complex<double>, len_x> data = {
     {{0., 1.}, {2., 3.}, {4., 5}}};
+
+constexpr auto filename = "basic_read_write.nc";
 
 /// Create a netCDF file with a variety of complex conventions
 int create_file(const std::string &filename) {
@@ -40,8 +42,8 @@ int create_file(const std::string &filename) {
   CHECK(nc_def_var(ncid, "data_ri", NC_DOUBLE, 2, dimids.data(), &var_ri));
 
   int type_id = 0;
-  CHECK(nc_def_compound(ncid, sizeof(std::complex<double>),
-                        "plasmafair_double_complex", &type_id));
+  CHECK(nc_def_compound(ncid, sizeof(std::complex<double>), "my_double_complex",
+                        &type_id));
   CHECK(nc_insert_compound(ncid, type_id, "r", 0, NC_DOUBLE));
   CHECK(nc_insert_compound(ncid, type_id, "i", sizeof(double), NC_DOUBLE));
   int var_struct_id = 0;
@@ -49,8 +51,20 @@ int create_file(const std::string &filename) {
   CHECK(nc_def_var(ncid, "data_struct", type_id, 1, dim_struct_ids.data(),
                    &var_struct_id));
 
+  int long_names_type_id = 0;
+  CHECK(nc_def_compound(ncid, sizeof(std::complex<double>), "long_names_double_complex",
+                        &long_names_type_id));
+  CHECK(nc_insert_compound(ncid, long_names_type_id, "Real", 0, NC_DOUBLE));
+  CHECK(
+      nc_insert_compound(ncid, long_names_type_id, "Imag", sizeof(double), NC_DOUBLE));
+  int var_long_names_id = 0;
+  const std::array<int, 1> dim_long_names_ids{{x_dim_id}};
+  CHECK(nc_def_var(ncid, "data_long_names", long_names_type_id, 1,
+                   dim_long_names_ids.data(), &var_long_names_id));
+
   CHECK(nc_put_var(ncid, var_ri, data.data()));
   CHECK(nc_put_var(ncid, var_struct_id, data.data()));
+  CHECK(nc_put_var(ncid, var_long_names_id, data.data()));
 
   CHECK(nc_close(ncid));
 
@@ -89,6 +103,12 @@ bool read_file(const std::string &filename) {
   CHECK(nc_get_var(ncid, var_struct_id, data_struct_out.data()));
   success |= check_data(data_struct_out);
 
+  std::array<std::complex<double>, len_x> data_long_names_out;
+  int var_long_names_id = 0;
+  CHECK(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
+  CHECK(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
+  success |= check_data(data_long_names_out);
+
   return success;
 }
 
@@ -111,27 +131,34 @@ bool read_file_nc_complex(const std::string &filename) {
   std::array<std::complex<double>, len_x> data_struct_out;
   int var_struct_id = 0;
   CHECK(nc_inq_varid(ncid, "data_struct", &var_struct_id));
-  CHECK(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
+  CHECK(pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
                                      cpp_to_c_complex(data_struct_out.data())));
   success |= check_data(data_struct_out);
+
+  std::array<std::complex<double>, len_x> data_long_names_out;
+  int var_long_names_id = 0;
+  CHECK(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
+  CHECK(pfnc_get_vara_double_complex(ncid, var_long_names_id, zeros, nullptr,
+                                     cpp_to_c_complex(data_long_names_out.data())));
+  success |= check_data(data_long_names_out);
 
   return success;
 }
 
 int main() {
   printf("Creating file... ");
-  if (create_file("test_test.nc")) {
+  if (create_file(filename)) {
     return EXIT_FAILURE;
   }
   printf("done!\n");
 
   printf("nc_get_var, no type checking:\n");
-  if (not read_file("test_test.nc")) {
+  if (not read_file(filename)) {
     return EXIT_FAILURE;
   }
 
   printf("pfnc_get_vara_double_complex, with type checking:\n");
-  if (not read_file_nc_complex("test_test.nc")) {
+  if (not read_file_nc_complex(filename)) {
     return EXIT_FAILURE;
   }
 }

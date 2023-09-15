@@ -20,7 +20,7 @@ using namespace std::string_view_literals;
 
 namespace plasmafair {
 
-constexpr auto double_complex_struct_name = "PF_NC_DOUBLE_COMPLEX_TYPE";
+constexpr auto double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
 
 /// Return true if file already has our complex type
 bool file_has_complex_struct(int ncid, nc_type &typeidp) {
@@ -194,7 +194,16 @@ bool check_variable_is_double_complex(int ncid, int varid) {
 }
 
 int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
-                               const size_t *countp, const std::complex<double> *op);
+                               const size_t *countp, const std::complex<double> *op) {
+  if (!check_variable_is_double_complex(ncid, varid)) {
+    return NC_EBADTYPE;
+  }
+
+  // TODO: handle start/count/stride correctly for dimension convention
+  // TODO: handle converting different float sizes
+
+  return nc_put_vara(ncid, varid, startp, countp, op);
+}
 
 int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
                                const size_t *countp, std::complex<double> *ip) {
@@ -202,7 +211,10 @@ int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
     return NC_EBADTYPE;
   }
 
-  return nc_get_var(ncid, varid, ip);
+  // TODO: handle start/count/stride correctly for dimension convention
+  // TODO: handle converting different float sizes
+
+  return nc_get_vara(ncid, varid, startp, countp, ip);
 }
 
 namespace details {
@@ -212,29 +224,27 @@ static constexpr size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
 } // namespace plasmafair
 
-int pfnc_get_double_complex_typeid(int ncid, int *complex_typeid) {
+int pfnc_get_double_complex_typeid(int ncid, nc_type *complex_typeid) {
   return plasmafair::create_double_complex_struct(ncid, *complex_typeid);
 }
 
-// int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
-//                                const size_t *countp,
-//                                const double _Complex *op) {
-//   return plasmafair::nc_put_vara_double_complex(
-//       ncid, varid, startp, countp,
-//       reinterpret_cast<const std::complex<double> *>(op));
-// }
+int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, const double _Complex *op) {
+  return plasmafair::nc_put_vara_double_complex(
+      ncid, varid, startp, countp, reinterpret_cast<const std::complex<double> *>(op));
+}
 
 int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, double _Complex *ip) {
+                                 const size_t *countp, double_complex *ip) {
   return plasmafair::nc_get_vara_double_complex(
       ncid, varid, startp, countp, reinterpret_cast<std::complex<double> *>(ip));
 }
 
-// int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
-//                                const double_complex *data) {
-//   return pfnc_put_vara_double_complex(ncid, varid, indexp,
-//                                     plasmafair::details::coord_one, data);
-// }
+int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
+                                 const double_complex *data) {
+  return pfnc_put_vara_double_complex(ncid, varid, indexp,
+                                      plasmafair::details::coord_one, data);
+}
 
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data) {

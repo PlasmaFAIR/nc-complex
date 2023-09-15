@@ -1,6 +1,8 @@
 #ifndef PLASMA_FAIR_NC_COMPLEX
 #define PLASMA_FAIR_NC_COMPLEX
 
+#include <netcdf.h>
+
 #ifdef _MSC_VER
 #include <complex.h>
 typedef _Dcomplex double_complex;
@@ -24,6 +26,8 @@ inline std::complex<double> *c_to_cpp_complex(double_complex *data) {
 
 extern "C" {
 #endif
+
+int pfnc_get_double_complex_typeid(int ncid, nc_type* nc_typeid);
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double_complex *op);

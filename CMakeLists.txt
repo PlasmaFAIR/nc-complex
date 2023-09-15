@@ -20,4 +20,10 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(netCDF REQUIRED)
 
 add_subdirectory(src)
-add_subdirectory(tests)
+
+if (PROJECT_IS_TOP_LEVEL)
+  include(CTest)
+  if (BUILD_TESTING)
+    add_subdirectory(tests)
+  endif()
+endif()
