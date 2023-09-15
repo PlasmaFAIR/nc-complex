@@ -1,60 +1,43 @@
 #include "nc_complex/nc_complex.h"
 
-#include <cstring>
 #include <netcdf.h>
 
-#include <cctype>
-#include <complex>
-#include <cstddef>
-#include <string>
-#include <vector>
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define CHECK(func)                                                                    \
   do {                                                                                 \
-    if (const auto res = (func)) {                                                     \
+    int res;                                                                           \
+    if (res = (func)) {                                                                \
       return res;                                                                      \
     }                                                                                  \
   } while (0)
 
-using namespace std::string_view_literals;
+// Vector of ones for get/put_var1 functions
+static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
-namespace plasmafair {
-
-constexpr auto double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
+static const char *double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
 
 /// Return true if file already has our complex type
-bool file_has_complex_struct(int ncid, nc_type &typeidp) {
-  const auto err = nc_inq_typeid(ncid, double_complex_struct_name, &typeidp);
-  return (err == NC_NOERR) and (typeidp > 0);
-}
-
-/// Create complex datatype if it doesn't already exist
-int create_double_complex_struct(int ncid, nc_type &type_id) {
-  if (file_has_complex_struct(ncid, type_id)) {
-    return NC_NOERR;
-  }
-
-  CHECK(nc_def_compound(ncid, sizeof(std::complex<double>), double_complex_struct_name,
-                        &type_id));
-  CHECK(nc_insert_compound(ncid, type_id, "r", 0, NC_DOUBLE));
-  CHECK(nc_insert_compound(ncid, type_id, "i", sizeof(double), NC_DOUBLE));
-
-  return NC_NOERR;
+bool file_has_complex_struct(int ncid, nc_type typeidp) {
+  const int err = nc_inq_typeid(ncid, double_complex_struct_name, &typeidp);
+  return (err == NC_NOERR) && (typeidp > 0);
 }
 
 /// Return true if a compound type is compatible with a known convention
 bool compound_type_is_compatible(int ncid, int nc_typeid) {
 
   // Does the name matching a known convention?
-  std::string name;
-  name.reserve(NC_MAX_NAME + 1);
-  nc_inq_compound_name(ncid, nc_typeid, name.data());
+  char name[NC_MAX_NAME + 1];
+  nc_inq_compound_name(ncid, nc_typeid, name);
   if (name == double_complex_struct_name) {
     return true;
   }
 
   // Does it have exactly two fields?
-  std::size_t num_fields{};
+  size_t num_fields;
   nc_inq_compound_nfields(ncid, nc_typeid, &num_fields);
   if (num_fields != 2) {
     return false;
@@ -64,13 +47,12 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
   // the imaginary part second. I'm pretty sure all natiev language
   // types are also this way round. That means we don't have to worry
   // about trying both combinations!
-  std::string real_name;
-  real_name.reserve(NC_MAX_NAME + 1);
-  std::size_t real_offset;
+  char real_name[NC_MAX_NAME + 1];
+  size_t real_offset;
   nc_type real_field_type;
   int real_rank;
-  nc_inq_compound_field(ncid, nc_typeid, 0, real_name.data(), &real_offset,
-                        &real_field_type, &real_rank, nullptr);
+  nc_inq_compound_field(ncid, nc_typeid, 0, real_name, &real_offset, &real_field_type,
+                        &real_rank, NULL);
 
   // If it's not a floating type, we're not interested
   if (!(real_field_type == NC_FLOAT || real_field_type == NC_DOUBLE)) {
@@ -82,17 +64,16 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
   }
 
   // Now check names. For now, just check it starts with "r", in any case
-  if (std::tolower(real_name.front()) != 'r') {
+  if (tolower(real_name[0]) != 'r') {
     return false;
   }
 
-  std::string imag_name;
-  imag_name.reserve(NC_MAX_NAME + 1);
-  std::size_t imag_offset;
+  char imag_name[NC_MAX_NAME + 1];
+  size_t imag_offset;
   nc_type imag_field_type;
   int imag_rank;
-  nc_inq_compound_field(ncid, nc_typeid, 0, imag_name.data(), &imag_offset,
-                        &imag_field_type, &imag_rank, nullptr);
+  nc_inq_compound_field(ncid, nc_typeid, 0, imag_name, &imag_offset, &imag_field_type,
+                        &imag_rank, NULL);
 
   // Both component types better match
   if (imag_field_type != real_field_type) {
@@ -101,7 +82,7 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
   if (imag_rank != 0) {
     return false;
   }
-  if (std::tolower(imag_name.front()) != 'i') {
+  if (tolower(imag_name[0]) != 'i') {
     return false;
   }
 
@@ -110,7 +91,7 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
 
 /// Return true if a given dimension matches a known convention
 bool dimension_is_complex(int ncid, int dim_id) {
-  std::size_t length{};
+  size_t length;
   nc_inq_dimlen(ncid, dim_id, &length);
 
   // Definitely can only be exactly two. Note that we can't catch
@@ -120,13 +101,11 @@ bool dimension_is_complex(int ncid, int dim_id) {
   }
 
   // Not sure if this is the best way, but here we are.
-  std::string name;
-  name.resize(NC_MAX_NAME + 1);
-  nc_inq_dimname(ncid, dim_id, name.data());
-  name.resize(std::strlen(name.c_str()));
+  char name[NC_MAX_NAME + 1];
+  nc_inq_dimname(ncid, dim_id, name);
 
   // Check against known names of complex dimensions
-  if (name == "ri"sv) {
+  if (strncmp(name, "ri", 2)) {
     return true;
   }
 
@@ -135,21 +114,23 @@ bool dimension_is_complex(int ncid, int dim_id) {
 
 /// Return true if a variable uses the dimension-convention
 bool variable_has_complex_dimension(int ncid, int nc_varid) {
-  int num_dims{};
+  int num_dims;
   nc_inq_varndims(ncid, nc_varid, &num_dims);
 
-  std::vector<int> dim_ids(static_cast<std::size_t>(num_dims));
-  nc_inq_vardimid(ncid, nc_varid, dim_ids.data());
+  int *dim_ids = (int *)malloc(num_dims * sizeof(int));
+  nc_inq_vardimid(ncid, nc_varid, dim_ids);
 
   // Now we check if any of the dimensions match one of our known
   // conventions. Do we need to check all of them, or just the
   // first/last?
-  for (const auto &dim_id : dim_ids) {
-    if (dimension_is_complex(ncid, dim_id)) {
+  for (int i = 0; i < num_dims; i++) {
+    if (dimension_is_complex(ncid, dim_ids[i])) {
+      free(dim_ids);
       return true;
     }
   }
 
+  free(dim_ids);
   return false;
 }
 
@@ -174,14 +155,14 @@ bool is_compound_type(int ncid, int type_id) {
     return false;
   }
 
-  int class_type{};
-  nc_inq_user_type(ncid, type_id, nullptr, nullptr, nullptr, nullptr, &class_type);
+  int class_type;
+  nc_inq_user_type(ncid, type_id, NULL, NULL, NULL, NULL, &class_type);
   return class_type == NC_COMPOUND;
 }
 
 /// Return true if the variable matches a known complex convention
 bool check_variable_is_double_complex(int ncid, int varid) {
-  nc_type var_type_id{};
+  nc_type var_type_id;
   if (nc_inq_vartype(ncid, varid, &var_type_id)) {
     return false;
   }
@@ -193,8 +174,21 @@ bool check_variable_is_double_complex(int ncid, int varid) {
   return variable_has_complex_dimension(ncid, varid);
 }
 
-int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
-                               const size_t *countp, const std::complex<double> *op) {
+int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
+  if (file_has_complex_struct(ncid, *type_id)) {
+    return NC_NOERR;
+  }
+
+  CHECK(nc_def_compound(ncid, sizeof(double_complex), double_complex_struct_name,
+                        type_id));
+  CHECK(nc_insert_compound(ncid, *type_id, "r", 0, NC_DOUBLE));
+  CHECK(nc_insert_compound(ncid, *type_id, "i", sizeof(double), NC_DOUBLE));
+
+  return NC_NOERR;
+}
+
+int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, const double _Complex *op) {
   if (!check_variable_is_double_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
@@ -205,8 +199,8 @@ int nc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
   return nc_put_vara(ncid, varid, startp, countp, op);
 }
 
-int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
-                               const size_t *countp, std::complex<double> *ip) {
+int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, double_complex *ip) {
   if (!check_variable_is_double_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
@@ -217,37 +211,12 @@ int nc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
   return nc_get_vara(ncid, varid, startp, countp, ip);
 }
 
-namespace details {
-// Vector of ones for get/put_var1 functions
-static constexpr size_t coord_one[NC_MAX_VAR_DIMS] = {1};
-} // namespace details
-
-} // namespace plasmafair
-
-int pfnc_get_double_complex_typeid(int ncid, nc_type *complex_typeid) {
-  return plasmafair::create_double_complex_struct(ncid, *complex_typeid);
-}
-
-int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, const double _Complex *op) {
-  return plasmafair::nc_put_vara_double_complex(
-      ncid, varid, startp, countp, reinterpret_cast<const std::complex<double> *>(op));
-}
-
-int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, double_complex *ip) {
-  return plasmafair::nc_get_vara_double_complex(
-      ncid, varid, startp, countp, reinterpret_cast<std::complex<double> *>(ip));
-}
-
 int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  const double_complex *data) {
-  return pfnc_put_vara_double_complex(ncid, varid, indexp,
-                                      plasmafair::details::coord_one, data);
+  return pfnc_put_vara_double_complex(ncid, varid, indexp, coord_one, data);
 }
 
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data) {
-  return pfnc_get_vara_double_complex(ncid, varid, plasmafair::details::coord_one,
-                                      plasmafair::details::coord_one, data);
+  return pfnc_get_vara_double_complex(ncid, varid, coord_one, coord_one, data);
 }

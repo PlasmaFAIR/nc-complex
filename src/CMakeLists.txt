@@ -1,6 +1,6 @@
 include(GenerateExportHeader)
 
-add_library(nc_complex nc_complex.cpp)
+add_library(nc_complex nc_complex.c)
 add_library(plasmafair::nc_complex ALIAS nc_complex)
 
 target_include_directories(nc_complex
@@ -11,6 +11,5 @@ target_include_directories(nc_complex
 )
 
 target_compile_features(nc_complex PUBLIC c_std_99)
-target_compile_features(nc_complex PUBLIC cxx_std_17)
 
 target_link_libraries(nc_complex PUBLIC netCDF::netcdf)
