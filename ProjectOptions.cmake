@@ -19,6 +19,7 @@ macro(nc_complex_supports_sanitizers)
 endmacro()
 
 macro(nc_complex_setup_options)
+  option(BUILD_SHARED_LIBS "Build shared libs" ON)
   option(nc_complex_ENABLE_HARDENING "Enable hardening" ON)
   option(nc_complex_ENABLE_COVERAGE "Enable coverage reporting" OFF)
   cmake_dependent_option(

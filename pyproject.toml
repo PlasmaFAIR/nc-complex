@@ -1,0 +1,15 @@
+[build-system]
+requires = [
+    "scikit-build-core",
+    "oldest-supported-numpy",
+    "cython>=3.0",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "nc_complex"
+description = "Nicer interface for complex types in netCDF"
+authors = [{name = "Peter Hill", email = "peter.hill@york.ac.uk"}]
+requires-python = ">=3.8"
+dependencies = ["netCDF4"]
+version = "0.1.0"
