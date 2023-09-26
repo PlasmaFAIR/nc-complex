@@ -11,21 +11,11 @@
 #define CHECK(func)                                                                    \
   do {                                                                                 \
     if (const auto res = (func)) {                                                     \
-      printf("Bailing out in file %s, line %d, error:%s.\n", __FILE__, __LINE__,       \
-             nc_strerror(res));                                                        \
-      return res;                                                                      \
-    }                                                                                  \
-  } while (0)
-
-#define CHECK_BOOL(func)                                                               \
-  do {                                                                                 \
-    if (const auto res = (func)) {                                                     \
       printf("Bailing out in file %s, line %d, error: (%d) %s.\n", __FILE__, __LINE__, \
              res, nc_strerror(res));                                                   \
       return false;                                                                    \
     }                                                                                  \
   } while (0)
-
 
 constexpr int len_x = 3;
 constexpr int len_ri = 2;
@@ -36,7 +26,7 @@ constexpr std::array<std::complex<double>, len_x> data = {
 constexpr auto filename = "with_api.nc";
 
 /// Create a netCDF file with a variety of complex conventions
-int create_file(const std::string &filename) {
+bool create_file(const std::string &filename) {
   int ncid = 0;
   int res = 0;
   CHECK(nc_create(filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
@@ -55,7 +45,7 @@ int create_file(const std::string &filename) {
 
   CHECK(nc_close(ncid));
 
-  return 0;
+  return true;
 }
 
 /// Check that a complex array matches the expected result
@@ -76,21 +66,21 @@ bool check_data(std::array<std::complex<double>, len_x> const &data_in) {
 bool read_file_nc_complex(const std::string &filename) {
   int ncid = 0;
   int res = 0;
-  CHECK_BOOL(nc_open(filename.c_str(), NC_NOWRITE, &ncid));
+  CHECK(nc_open(filename.c_str(), NC_NOWRITE, &ncid));
 
   constexpr size_t zeros[NC_MAX_VAR_DIMS] = {0};
 
   std::array<std::complex<double>, len_x> data_struct_out;
   int var_struct_id = 0;
-  CHECK_BOOL(nc_inq_varid(ncid, "data_struct", &var_struct_id));
-  CHECK_BOOL(pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
+  CHECK(nc_inq_varid(ncid, "data_struct", &var_struct_id));
+  CHECK(pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
                                      cpp_to_c_complex(data_struct_out.data())));
   return check_data(data_struct_out);
 }
 
 int main() {
   printf("Creating file... ");
-  if (create_file(filename)) {
+  if (not create_file(filename)) {
     return EXIT_FAILURE;
   }
   printf("done!\n");
