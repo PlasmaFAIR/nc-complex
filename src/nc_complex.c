@@ -10,7 +10,7 @@
 #define CHECK(func)                                                                    \
   do {                                                                                 \
     int res;                                                                           \
-    if (res = (func)) {                                                                \
+    if ((res = (func))) {                                                              \
       return res;                                                                      \
     }                                                                                  \
   } while (0)
