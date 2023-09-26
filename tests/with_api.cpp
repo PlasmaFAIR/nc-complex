@@ -36,6 +36,16 @@ bool create_file(const std::string &filename) {
 
   int type_id{};
   CHECK(pfnc_get_double_complex_typeid(ncid, &type_id));
+
+  int type_id2{};
+  CHECK(pfnc_get_double_complex_typeid(ncid, &type_id2));
+  if (type_id2 != type_id) {
+    printf("Got different typeid on second call to `pfnc_get_double_complex_typeid` "
+           "(%d, expected %d)",
+           type_id2, type_id);
+    return false;
+  }
+
   int var_struct_id = 0;
   const std::array<int, 1> dim_struct_ids{{x_dim_id}};
   CHECK(nc_def_var(ncid, "data_struct", type_id, 1, dim_struct_ids.data(),

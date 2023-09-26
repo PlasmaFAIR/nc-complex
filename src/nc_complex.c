@@ -21,8 +21,8 @@ static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 static const char *double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
 
 /// Return true if file already has our complex type
-bool file_has_complex_struct(int ncid, nc_type typeidp) {
-  const int err = nc_inq_typeid(ncid, double_complex_struct_name, &typeidp);
+bool file_has_complex_struct(int ncid, nc_type *typeidp) {
+  const int err = nc_inq_typeid(ncid, double_complex_struct_name, typeidp);
   return (err == NC_NOERR) && (typeidp > 0);
 }
 
@@ -175,7 +175,7 @@ bool check_variable_is_double_complex(int ncid, int varid) {
 }
 
 int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
-  if (file_has_complex_struct(ncid, *type_id)) {
+  if (file_has_complex_struct(ncid, type_id)) {
     return NC_NOERR;
   }
 
