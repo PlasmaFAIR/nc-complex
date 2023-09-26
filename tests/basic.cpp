@@ -17,6 +17,15 @@
     }                                                                                  \
   } while (0)
 
+#define CHECK_BOOL(func)                                                               \
+  do {                                                                                 \
+    if (const auto res = (func)) {                                                     \
+      printf("Bailing out in file %s, line %d, error: (%d) %s.\n", __FILE__, __LINE__, \
+             res, nc_strerror(res));                                                   \
+      return false;                                                                    \
+    }                                                                                  \
+  } while (0)
+
 constexpr int len_x = 3;
 constexpr int len_ri = 2;
 
@@ -89,24 +98,24 @@ bool check_data(std::array<std::complex<double>, len_x> const &data_in) {
 bool read_file(const std::string &filename) {
   int ncid = 0;
   int res = 0;
-  CHECK(nc_open(filename.c_str(), NC_NOWRITE, &ncid));
+  CHECK_BOOL(nc_open(filename.c_str(), NC_NOWRITE, &ncid));
 
   std::array<std::complex<double>, len_x> data_ri_out;
   int var_ri_id = 0;
-  CHECK(nc_inq_varid(ncid, "data_ri", &var_ri_id));
-  CHECK(nc_get_var(ncid, var_ri_id, data_ri_out.data()));
+  CHECK_BOOL(nc_inq_varid(ncid, "data_ri", &var_ri_id));
+  CHECK_BOOL(nc_get_var(ncid, var_ri_id, data_ri_out.data()));
   auto success = check_data(data_ri_out);
 
   std::array<std::complex<double>, len_x> data_struct_out;
   int var_struct_id = 0;
-  CHECK(nc_inq_varid(ncid, "data_struct", &var_struct_id));
-  CHECK(nc_get_var(ncid, var_struct_id, data_struct_out.data()));
+  CHECK_BOOL(nc_inq_varid(ncid, "data_struct", &var_struct_id));
+  CHECK_BOOL(nc_get_var(ncid, var_struct_id, data_struct_out.data()));
   success |= check_data(data_struct_out);
 
   std::array<std::complex<double>, len_x> data_long_names_out;
   int var_long_names_id = 0;
-  CHECK(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
-  CHECK(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
+  CHECK_BOOL(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
+  CHECK_BOOL(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
   success |= check_data(data_long_names_out);
 
   return success;
@@ -116,30 +125,31 @@ bool read_file(const std::string &filename) {
 bool read_file_nc_complex(const std::string &filename) {
   int ncid = 0;
   int res = 0;
-  CHECK(nc_open(filename.c_str(), NC_NOWRITE, &ncid));
+  CHECK_BOOL(nc_open(filename.c_str(), NC_NOWRITE, &ncid));
 
   constexpr size_t zeros[NC_MAX_VAR_DIMS] = {0};
 
   std::array<std::complex<double>, len_x> data_ri_out;
   int var_ri_id = 0;
-  CHECK(nc_inq_varid(ncid, "data_ri", &var_ri_id));
-  CHECK(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
-                                     cpp_to_c_complex(data_ri_out.data())));
+  CHECK_BOOL(nc_inq_varid(ncid, "data_ri", &var_ri_id));
+  CHECK_BOOL(pfnc_get_vara_double_complex(ncid, var_ri_id, zeros, nullptr,
+                                          cpp_to_c_complex(data_ri_out.data())));
 
   auto success = check_data(data_ri_out);
 
   std::array<std::complex<double>, len_x> data_struct_out;
   int var_struct_id = 0;
-  CHECK(nc_inq_varid(ncid, "data_struct", &var_struct_id));
-  CHECK(pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
-                                     cpp_to_c_complex(data_struct_out.data())));
+  CHECK_BOOL(nc_inq_varid(ncid, "data_struct", &var_struct_id));
+  CHECK_BOOL(pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
+                                          cpp_to_c_complex(data_struct_out.data())));
   success |= check_data(data_struct_out);
 
   std::array<std::complex<double>, len_x> data_long_names_out;
   int var_long_names_id = 0;
-  CHECK(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
-  CHECK(pfnc_get_vara_double_complex(ncid, var_long_names_id, zeros, nullptr,
-                                     cpp_to_c_complex(data_long_names_out.data())));
+  CHECK_BOOL(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
+  CHECK_BOOL(
+      pfnc_get_vara_double_complex(ncid, var_long_names_id, zeros, nullptr,
+                                   cpp_to_c_complex(data_long_names_out.data())));
   success |= check_data(data_long_names_out);
 
   return success;
