@@ -1,0 +1,3 @@
+[submodule "src/nc_complex/netCDF4"]
+	path = src/nc_complex/netCDF4
+	url = https://github.com/Unidata/netcdf4-python.git
