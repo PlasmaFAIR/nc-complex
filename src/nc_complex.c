@@ -72,7 +72,7 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
   size_t imag_offset;
   nc_type imag_field_type;
   int imag_rank;
-  nc_inq_compound_field(ncid, nc_typeid, 0, imag_name, &imag_offset, &imag_field_type,
+  nc_inq_compound_field(ncid, nc_typeid, 1, imag_name, &imag_offset, &imag_field_type,
                         &imag_rank, NULL);
 
   // Both component types better match
@@ -105,7 +105,7 @@ bool dimension_is_complex(int ncid, int dim_id) {
   nc_inq_dimname(ncid, dim_id, name);
 
   // Check against known names of complex dimensions
-  if (strncmp(name, "ri", 2)) {
+  if (strncmp(name, "ri", 2) == 0) {
     return true;
   }
 
