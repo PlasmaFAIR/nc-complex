@@ -1,6 +1,7 @@
 # Some declarations from netCDF that we need directly and can't use
 # via the netCDF4 Python API
 cdef extern from "netcdf.h":
+  ctypedef int nc_type
   cdef enum:
     NC_NOERR
 
@@ -9,7 +10,9 @@ cdef extern from "netcdf.h":
 
 # Our API declarations
 cdef extern from "nc_complex/nc_complex.h":
-  int pfnc_get_double_complex_typeid(int ncid, int *nc_typeid)
+  int pfnc_is_complex(int ncid, int varid)
+
+  int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid)
 
   int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                    const size_t *countp, const double complex *op)

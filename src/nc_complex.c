@@ -161,7 +161,7 @@ bool is_compound_type(int ncid, int type_id) {
 }
 
 /// Return true if the variable matches a known complex convention
-bool check_variable_is_double_complex(int ncid, int varid) {
+bool pfnc_is_complex(int ncid, int varid) {
   nc_type var_type_id;
   if (nc_inq_vartype(ncid, varid, &var_type_id)) {
     return false;
@@ -189,7 +189,7 @@ int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double _Complex *op) {
-  if (!check_variable_is_double_complex(ncid, varid)) {
+  if (!pfnc_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
 
@@ -201,7 +201,7 @@ int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
 
 int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, double_complex *ip) {
-  if (!check_variable_is_double_complex(ncid, varid)) {
+  if (!pfnc_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
 

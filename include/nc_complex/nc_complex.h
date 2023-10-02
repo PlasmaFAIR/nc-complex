@@ -11,6 +11,7 @@ typedef double _Complex double_complex;
 #endif
 
 #include <complex.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -26,6 +27,9 @@ inline std::complex<double> *c_to_cpp_complex(double_complex *data) {
 
 extern "C" {
 #endif
+
+/// Return true if variable is complex
+bool pfnc_is_complex(int ncid, int varid);
 
 /// Create complex datatype if it doesn't already exist
 int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);

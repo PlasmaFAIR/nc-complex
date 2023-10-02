@@ -18,3 +18,7 @@ cpdef int double_complex_typeid(int ncid):
     ierr = pfnc_get_double_complex_typeid(ncid, &nc_typeid)
     _check_netcdf_error("When attempting to get typeid for double complex", ierr)
     return nc_typeid
+
+
+cpdef bint is_complex(int ncid, int varid):
+    return <bint>pfnc_is_complex(ncid, varid)
