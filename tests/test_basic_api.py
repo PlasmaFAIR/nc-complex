@@ -18,9 +18,10 @@ def test_read_dim(tmp_path):
 
     with nc_complex.Dataset(filename, "r") as f:
         assert "data_dim" in f.variables
-        assert f["data_dim"].is_complex
-        breakpoint()
-        data = f["data_dim"][:]
+        data_dim = f["data_dim"]
+        assert data_dim.is_complex
+        assert data_dim.shape == (len(complex_array),)
+        data = data_dim[:]
 
     assert np.array_equal(data, complex_array)
 
