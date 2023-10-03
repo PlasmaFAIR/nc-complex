@@ -50,6 +50,13 @@ int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data);
 
+
+// Custom shims for lying about dimensional variables
+int pfnc_inq_varndims(int ncid, int varid, int *ndimsp);
+int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp);
+
+// TODO: pfnc_libvers
+
 #ifdef __cplusplus
 }
 #endif

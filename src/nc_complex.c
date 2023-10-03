@@ -4,6 +4,7 @@
 
 #include <ctype.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -221,4 +222,60 @@ int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data) {
   return pfnc_get_vara_double_complex(ncid, varid, coord_one, coord_one, data);
+}
+
+
+int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
+  const int ierr = nc_inq_varndims(ncid, varid, ndimsp);
+  if (ierr != NC_NOERR) {
+    return ierr;
+  }
+  // Pretend that variable has one less dimension than it does
+  if (pfnc_has_complex_dimension(ncid, varid)) {
+    *ndimsp -= 1;
+  }
+  return NC_NOERR;
+}
+
+int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
+  // Tricky bit: if variable has complex dimension, and user used
+  // pfnc_inq_varndims, then dimidsp is one smaller than netCDF thinks
+  // it should be. So we'll have to allocate our own array of the
+  // correct size and copy out of that.
+
+  // This buffer will point to either the user's array, or our own one
+  int *buffer = dimidsp;
+  bool allocated_internal_buffer = false;
+  int numdims = 0;
+
+  if (pfnc_has_complex_dimension(ncid, varid)) {
+    const int ierr = nc_inq_varndims(ncid, varid, &numdims);
+    if (ierr != NC_NOERR) {
+      return ierr;
+    }
+    buffer = (int*)malloc(sizeof(int) * numdims);
+    allocated_internal_buffer = true;
+  }
+
+  int ierr = nc_inq_vardimid(ncid, varid, buffer);
+  if (ierr != NC_NOERR) {
+    goto cleanup;
+  }
+
+  if (allocated_internal_buffer) {
+    if (numdims <= 0) {
+      // This should never happen
+      goto cleanup;
+    }
+    const size_t other_dims = (size_t)(numdims - 1);
+    for (size_t i = 0; i < (size_t)numdims; i++) {
+      dimidsp[i] = buffer[i];
+    }
+  }
+
+cleanup:
+  if (allocated_internal_buffer) {
+    free(buffer);
+  }
+  return ierr;
 }
