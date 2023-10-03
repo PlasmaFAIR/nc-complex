@@ -6,9 +6,16 @@ import posixpath
 import netCDF4
 from netCDF4.utils import _find_dim
 
-from ._c_nc_complex import double_complex_typeid
+from ._c_nc_complex import double_complex_typeid, is_complex, has_complex_dimension
 
-from typing import Union
+from typing import Union, cast
+
+
+def dtype_is_complex(dtype: Union[str, netCDF4.CompoundType, np.dtype]) -> bool:
+    if dtype == "c16":
+        return True
+
+    return False
 
 
 class Variable(netCDF4.Variable):
@@ -21,8 +28,8 @@ class Variable(netCDF4.Variable):
         **kwargs,
     ):
         # If datatype is complex dtype, then create a new Python object representing it
-        is_complex = datatype == "c16"
-        if is_complex:
+        datatype_is_complex = dtype_is_complex(datatype)
+        if datatype_is_complex:
             # Either get existing typeid or create new one
             datatype_id = double_complex_typeid(group._grpid)
             # This is just the Python wrapper around the datatype
@@ -42,7 +49,8 @@ class Variable(netCDF4.Variable):
         super().__init__(group, name, datatype, *args, **kwargs)
 
         # Don't forget to restore the old dtype
-        if is_complex:
+        if datatype_is_complex:
+            datatype = cast(netCDF4.CompoundType, datatype)
             datatype.dtype = old_datatype_dtype
 
     def __getitem__(self, key):
@@ -51,8 +59,37 @@ class Variable(netCDF4.Variable):
 
         return data
 
+    @property
+    def is_complex(self):
+        return is_complex(self.group()._grpid, self._varid)
+
 
 class Dataset(netCDF4.Dataset):
+    def __init__(self, filename, *args, **kwargs):
+        super().__init__(filename, *args, **kwargs)
+
+        # Recreate variables using our class
+        for name, var in self.variables.items():
+            var_is_complex = is_complex(self._grpid, var._varid)
+
+            datatype = "c16" if var_is_complex else var.dtype
+            dims = (
+                var.dimensions
+                if has_complex_dimension(self._grpid, var._varid)
+                else var.dimensions[:-1]
+            )
+
+            dimensions = (_find_dim(self, dim) for dim in dims)
+
+            self.variables[name] = Variable(
+                self,
+                var.name,
+                datatype,
+                dimensions,
+                id=var._varid,
+                endian=var.endian(),
+            )
+
     def createVariable(self, varname, datatype, dimensions=(), *args, **kwargs):
         dirname, varname = posixpath.split(posixpath.normpath(varname))
 
