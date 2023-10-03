@@ -30,6 +30,11 @@ extern "C" {
 
 /// Return true if variable is complex
 bool pfnc_is_complex(int ncid, int varid);
+/// Return true if variable is complex and uses a compound datatype
+bool pfnc_is_complex_type(int ncid, int varid);
+/// Return true if variable is complex and has a complex dimension
+/// (assumed to be the last dimension)
+bool pfnc_has_complex_dimension(int ncid, int varid);
 
 /// Create complex datatype if it doesn't already exist
 int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);

@@ -11,6 +11,8 @@ cdef extern from "netcdf.h":
 # Our API declarations
 cdef extern from "nc_complex/nc_complex.h":
   int pfnc_is_complex(int ncid, int varid)
+  int pfnc_is_complex_type(int ncid, int varid)
+  int pfnc_has_complex_dimension(int ncid, int varid)
 
   int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid)
 

@@ -26,6 +26,10 @@ bool file_has_complex_struct(int ncid, nc_type *typeidp) {
   return (err == NC_NOERR) && (typeidp > 0);
 }
 
+bool pfnc_is_complex(int ncid, int varid) {
+  return pfnc_is_complex_type(ncid, varid) || pfnc_has_complex_dimension(ncid, varid);
+}
+
 /// Return true if a compound type is compatible with a known convention
 bool compound_type_is_compatible(int ncid, int nc_typeid) {
 
@@ -113,7 +117,7 @@ bool dimension_is_complex(int ncid, int dim_id) {
 }
 
 /// Return true if a variable uses the dimension-convention
-bool variable_has_complex_dimension(int ncid, int nc_varid) {
+bool pfnc_has_complex_dimension(int ncid, int nc_varid) {
   int num_dims;
   nc_inq_varndims(ncid, nc_varid, &num_dims);
 
@@ -160,8 +164,7 @@ bool is_compound_type(int ncid, int type_id) {
   return class_type == NC_COMPOUND;
 }
 
-/// Return true if the variable matches a known complex convention
-bool pfnc_is_complex(int ncid, int varid) {
+bool pfnc_is_complex_type(int ncid, int varid) {
   nc_type var_type_id;
   if (nc_inq_vartype(ncid, varid, &var_type_id)) {
     return false;
@@ -170,8 +173,7 @@ bool pfnc_is_complex(int ncid, int varid) {
   if (is_compound_type(ncid, var_type_id)) {
     return compound_type_is_compatible(ncid, var_type_id);
   }
-
-  return variable_has_complex_dimension(ncid, varid);
+  return false;
 }
 
 int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
