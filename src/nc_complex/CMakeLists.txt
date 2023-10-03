@@ -32,6 +32,7 @@ add_custom_command(
   COMMAND "${CYTHON}" "${CMAKE_CURRENT_SOURCE_DIR}/netCDF4/src/netCDF4/_netCDF4.pyx"
           --output-file "${CMAKE_CURRENT_BINARY_DIR}/_netCDF4.c"
           --include-dir "${CMAKE_CURRENT_BINARY_DIR}"
+          --include-dir "${CMAKE_CURRENT_SOURCE_DIR}"
           --include-dir "${CMAKE_CURRENT_SOURCE_DIR}/netCDF4/include"
 )
 
@@ -41,6 +42,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/constants.pyx.in"
 
 python_add_library(_netCDF4 MODULE "${CMAKE_CURRENT_BINARY_DIR}/_netCDF4.c"
   WITH_SOABI)
-target_link_libraries(_netCDF4 PUBLIC netCDF::netcdf PRIVATE Python::NumPy)
+target_link_libraries(_netCDF4 PUBLIC netCDF::netcdf PRIVATE Python::NumPy nc_complex)
 
 install(TARGETS _c_nc_complex DESTINATION ${SKBUILD_PROJECT_NAME})
