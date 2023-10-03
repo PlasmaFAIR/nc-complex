@@ -12,6 +12,8 @@ include(ProjectOptions.cmake)
 
 nc_complex_setup_options()
 nc_complex_global_options()
+include(Dependencies.cmake)
+nc_complex_setup_dependencies()
 nc_complex_local_options()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)

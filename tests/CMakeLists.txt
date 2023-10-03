@@ -15,10 +15,23 @@ if(PROJECT_IS_TOP_LEVEL OR TEST_INSTALLED_VERSION)
   endif()
 endif()
 
-add_executable(basic_read_write basic.cpp)
-target_link_libraries(basic_read_write plasmafair::nc_complex)
-add_test(NAME basic_read_write COMMAND basic_read_write)
 
-add_executable(create_with_api with_api.cpp)
-target_link_libraries(create_with_api plasmafair::nc_complex)
-add_test(NAME create_with_api COMMAND create_with_api)
+include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
+
+add_executable(test_c_api test_c_api.cpp)
+target_link_libraries(test_c_api
+  PRIVATE
+  nc_complex_warnings
+  nc_complex_options
+  plasmafair::nc_complex
+  Catch2::Catch2WithMain
+)
+
+catch_discover_tests(
+  test_c_api
+  TEST_PREFIX "unittests."
+  REPORTER XML
+  OUTPUT_DIR .
+  OUTPUT_PREFIX "unittests."
+  OUTPUT_SUFFIX .xml
+)
