@@ -280,8 +280,6 @@ cdef extern from "netcdf.h":
                 void *ip) nogil
     int nc_put_vara(int ncid, int varid,  size_t *startp,
                 size_t *countp, void *op) nogil
-    int nc_get_vara(int ncid, int varid,  size_t *startp,
-                size_t *countp, void *ip) nogil
     int nc_put_vars(int ncid, int varid,  size_t *startp,
                 size_t *countp, ptrdiff_t *stridep,
                 void *op) nogil
@@ -461,3 +459,5 @@ cdef extern from "numpy/arrayobject.h":
 cdef extern from "nc_complex/nc_complex.h":
   int nc_inq_varndims "pfnc_inq_varndims" (int ncid, int varid, int *ndimsp) nogil
   int nc_inq_vardimid "pfnc_inq_vardimid" (int ncid, int varid, int *dimidsp) nogil
+  int nc_get_vara "pfnc_get_vara" (int ncid, int varid, size_t *startp,
+                                   size_t *countp, void *ip) nogil

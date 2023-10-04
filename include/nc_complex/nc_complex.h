@@ -55,6 +55,8 @@ int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
 int pfnc_inq_varndims(int ncid, int varid, int *ndimsp);
 int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp);
 
+int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
+                  void *ip);
 // TODO: pfnc_libvers
 
 #ifdef __cplusplus

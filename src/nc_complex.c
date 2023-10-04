@@ -208,10 +208,56 @@ int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
     return NC_EBADTYPE;
   }
 
-  // TODO: handle start/count/stride correctly for dimension convention
   // TODO: handle converting different float sizes
 
-  return nc_get_vara(ncid, varid, startp, countp, ip);
+  // Check if we can get away without fudging count/start sizes
+  if (((startp == NULL) && (countp == NULL)) ||
+      !pfnc_has_complex_dimension(ncid, varid)) {
+    return nc_get_vara(ncid, varid, startp, countp, ip);
+  }
+
+  // The real variable has a complex dimension, but we're pretending
+  // it doesn't, so now we need start/count arrays of the real size
+
+  int numdims = 0;
+  {
+    const int ierr = nc_inq_varndims(ncid, varid, &numdims);
+    if (ierr != NC_NOERR) {
+      return ierr;
+    }
+  }
+
+  size_t *start_buffer = NULL;
+  if (startp != NULL) {
+    start_buffer = (size_t *)malloc(sizeof(size_t) * numdims);
+
+    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
+      start_buffer[i] = startp[i];
+    }
+    // Start complex dim at zero so we get both parts
+    start_buffer[numdims - 1] = 0;
+  }
+
+  size_t *count_buffer = NULL;
+  if (countp != NULL) {
+    count_buffer = (size_t *)malloc(sizeof(size_t) * numdims);
+
+    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
+      count_buffer[i] = countp[i];
+    }
+    // Always get both parts of complex dim
+    count_buffer[numdims - 1] = 2;
+  }
+
+  const int ierr = nc_get_vara(ncid, varid, start_buffer, count_buffer, ip);
+
+  if (start_buffer != NULL) {
+    free(start_buffer);
+  }
+  if (count_buffer != NULL) {
+    free(count_buffer);
+  }
+  return ierr;
 }
 
 int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
@@ -278,4 +324,12 @@ cleanup:
     free(buffer);
   }
   return ierr;
+}
+int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
+                  void *ip) {
+  if (pfnc_is_complex(ncid, varid)) {
+    return pfnc_get_vara_double_complex(ncid, varid, startp, countp, ip);
+  }
+
+  return nc_get_vara(ncid, varid, startp, countp, ip);
 }

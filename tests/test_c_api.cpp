@@ -134,7 +134,50 @@ TEST_CASE("Read test file") {
     }
   }
 
-  SECTION("Using nc_complex API") {
+  SECTION("Using nc_complex untyped API") {
+    constexpr std::array<size_t, 1> starts = {0};
+    constexpr std::array<size_t, 1> counts = {len_x};
+
+    SECTION("Reading dimensional variable") {
+      std::array<std::complex<double>, len_x> data_ri_out;
+      int var_ri_id = 0;
+      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri", &var_ri_id)});
+      REQUIRE(pfnc_is_complex(ncid, var_ri_id));
+      REQUIRE(NetCDFResult{pfnc_get_vara(ncid, var_ri_id, starts.data(), counts.data(),
+                                         cpp_to_c_complex(data_ri_out.data()))});
+
+      int var_ri_ndims = 0;
+      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE(var_ri_ndims == 1);
+      REQUIRE(data_ri_out == data);
+    }
+
+    SECTION("Reading structure variable") {
+      std::array<std::complex<double>, len_x> data_struct_out;
+      int var_struct_id = 0;
+      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct", &var_struct_id)});
+      REQUIRE(pfnc_is_complex(ncid, var_struct_id));
+      REQUIRE(
+          NetCDFResult{pfnc_get_vara(ncid, var_struct_id, starts.data(), counts.data(),
+                                     cpp_to_c_complex(data_struct_out.data()))});
+      REQUIRE(data_struct_out == data);
+    }
+
+    SECTION("Reading structure variable with long names") {
+      std::array<std::complex<double>, len_x> data_long_names_out;
+      int var_long_names_id = 0;
+      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_long_names", &var_long_names_id)});
+      REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
+      REQUIRE(NetCDFResult{
+          pfnc_get_vara(ncid, var_long_names_id, starts.data(), counts.data(),
+                        cpp_to_c_complex(data_long_names_out.data()))});
+      REQUIRE(NetCDFResult{
+          nc_get_var(ncid, var_long_names_id, data_long_names_out.data())});
+      REQUIRE(data_long_names_out == data);
+    }
+  }
+
+  SECTION("Using nc_complex typed API") {
     SECTION("Reading dimensional variable") {
       std::array<std::complex<double>, len_x> data_ri_out;
       int var_ri_id = 0;
