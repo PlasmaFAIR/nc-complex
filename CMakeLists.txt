@@ -26,7 +26,7 @@ if (SKBUILD)
   add_subdirectory(src/nc_complex)
 endif()
 
-if (PROJECT_IS_TOP_LEVEL)
+if (PROJECT_IS_TOP_LEVEL AND NOT SKBUILD)
   include(CTest)
   if (BUILD_TESTING)
     add_subdirectory(tests)
