@@ -3,27 +3,31 @@ from __future__ import annotations
 import numpy as np
 
 import posixpath
-import netCDF4
-from netCDF4.utils import _find_dim
-
+from .utils import _find_dim
+from ._pf_netCDF4 import (
+    Variable as BaseVariable,
+    Dataset as BaseDataset,
+    CompoundType,
+    Dimension,
+)
 from ._c_nc_complex import double_complex_typeid, is_complex, has_complex_dimension
 
 from typing import Union, cast
 
 
-def dtype_is_complex(dtype: Union[str, netCDF4.CompoundType, np.dtype]) -> bool:
+def dtype_is_complex(dtype: Union[str, CompoundType, np.dtype]) -> bool:
     if dtype == "c16":
         return True
 
     return False
 
 
-class Variable(netCDF4.Variable):
+class Variable(BaseVariable):
     def __init__(
         self,
         group: Dataset,
         name: str,
-        datatype: Union[str, netCDF4.CompoundType],
+        datatype: Union[str, CompoundType],
         *args,
         **kwargs,
     ):
@@ -33,9 +37,7 @@ class Variable(netCDF4.Variable):
             # Either get existing typeid or create new one
             datatype_id = double_complex_typeid(group._grpid)
             # This is just the Python wrapper around the datatype
-            datatype = netCDF4.CompoundType(
-                group, "f8, f8", "complex", typeid=datatype_id
-            )
+            datatype = CompoundType(group, "f8, f8", "complex", typeid=datatype_id)
             # Now something ugly: we have to lie about the datatype here in
             # order to convince Variable it has a numpy complex dtype so it
             # casts things correctly -- we can't change it directly, because
@@ -50,7 +52,7 @@ class Variable(netCDF4.Variable):
 
         # Don't forget to restore the old dtype
         if datatype_is_complex:
-            datatype = cast(netCDF4.CompoundType, datatype)
+            datatype = cast(CompoundType, datatype)
             datatype.dtype = old_datatype_dtype
 
     def __getitem__(self, key):
@@ -64,7 +66,7 @@ class Variable(netCDF4.Variable):
         return is_complex(self.group()._grpid, self._varid)
 
 
-class Dataset(netCDF4.Dataset):
+class Dataset(BaseDataset):
     def __init__(self, filename, *args, **kwargs):
         super().__init__(filename, *args, **kwargs)
 
@@ -98,7 +100,7 @@ class Dataset(netCDF4.Dataset):
         else:
             group = self.createGroup(dirname)
 
-        if isinstance(dimensions, (str, bytes, netCDF4.Dimension)):
+        if isinstance(dimensions, (str, bytes, Dimension)):
             dimensions = (dimensions,)
 
         dimensions = tuple(
