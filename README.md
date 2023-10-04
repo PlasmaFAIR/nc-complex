@@ -1,8 +1,76 @@
 nc-complex
 ==========
 
-`nc-complex` is a library for reading and writing complex numbers
-using netCDF.
+`nc-complex` is a drop-in extension for netCDF that handles reading
+and writing complex numbers, with APIs for C and Python (and
+eventually C++ and Fortran).
+
+This is currently at the proof-of-concept/alpha stage, and is not
+suitable for production use just yet.
+
+Examples
+--------
+
+The Python API is built on top of [netCDF4][netcdf4], and the only
+change required to start using complex numbers is to import
+`nc_complex` instead of `netCDF4`:
+
+```python
+import nc_complex as netCDF4
+import numpy as np
+
+complex_array = np.array([0 + 0j, 1 + 0j, 0 + 1j, 1 + 1j, 0.25 + 0.75j], dtype="c16")
+
+with netCDF4.Dataset(filename, "w") as f:
+    f.createDimension("x", size=len(complex_array))
+    complex_var = f.createVariable("complex_data", "c16", ("x",))
+    complex_var[:] = complex_array
+
+with netCDF4.Dataset(filename, "r") as f:
+    print(f["complex_data"])
+    print(f["complex_data"][:])
+
+# <class 'nc_complex.Variable'>
+# compound data_dim(x)
+# compound data type: complex128
+# unlimited dimensions:
+# current shape = (5,)
+# [0.  +0.j   1.  +0.j   0.  +1.j   1.  +1.j   0.25+0.75j]
+```
+
+Here we've imported `nc_complex as netCDF4` to demonstrate that the
+API is identical.
+
+In C, the only new function we strictly need is
+`pfnc_get_double_complex_typeid`, which creates a netCDF compound type
+representing complex numbers. If such a type already exists in the
+file, this is used instead of making a new one.
+
+A stripped-down example using this:
+
+```C
+nc_create(full_filename, NC_NETCDF4 | NC_CLOBBER, &ncid);
+nc_def_dim(ncid, "x", len_x, &x_dim_id);
+
+pfnc_get_double_complex_typeid(ncid, &type_id);
+
+nc_def_var(ncid, "data_struct", type_id, 1, dim_struct_ids, &var_id);
+nc_put_var(ncid, var_struct_id, data);
+
+nc_get_vara(ncid, var_struct_id, data_out);
+```
+
+There are also some wrappers for several netCDF functions that handle
+reading/writing variables that use a separate dimension to represent
+complex numbers:
+
+```C
+pfnc_get_vara(ncid, var_id, &starts, &counts, data)
+```
+
+This works exactly the same as `nc_get_vara`, except that it ensures
+`starts` and `counts` are correct for variables using a complex
+dimension.
 
 The problem
 -----------
@@ -15,10 +83,14 @@ their own, with the result that there are several competing methods of
 doing so.
 
 One reason why netCDF is lacking a complex datatype is because its
-main, modern backing file format, HDF5, is also lacking one (although
-note that another modern backing format, Zarr, does). This has been
-requested since at least 2010, and doesn't appear to be high on the
-maintainers' priority list. Oh well.
+main, modern backing file format, HDF5, is also lacking one. This has
+been requested since at least 2010. [This discussion][hdf5_request]
+has a synopsis of the situation in HDF5.
+
+Even if native complex types make it into both HDF5 and netCDF, there
+will still be legacy applications and existing files using these other
+methods, and it would be useful to have analysis tools be able to read
+all of them.
 
 The aim of `nc-complex` is to smooth over these differences and
 present a single interface for reading and modifying complex data
@@ -40,6 +112,9 @@ Each flavour has several variations, mainly around the names used for
 the real/imaginary components, and whether the numbers are stored in
 Cartesian/rectangular or polar convention (using magnitude and phase
 angle).
+
+Currently, `nc-complex` supports complex datatypes and dimensions,
+with some variations on these flavours.
 
 You can find examples of all three flavours (and their variations) in
 the wild, although given the nature of research software, it's
@@ -233,6 +308,7 @@ through the many bundled copies of netCDF-C. It's not immediately
 obvious why this is case, especially compared to uses of compound
 types in HDF5 code.
 
+[netcdf4]: http://unidata.github.io/netcdf4-python/
 [cpp_memcpy_example]: https://en.cppreference.com/w/c/language/arithmetic_types#Complex_floating_types
 [h5py]: https://docs.h5py.org/en/stable/index.html
 [hdf5jl]: https://juliaio.github.io/HDF5.jl/stable/
@@ -241,3 +317,4 @@ types in HDF5 code.
 [dtypes]: https://numpy.org/doc/stable/reference/arrays.dtypes.html
 [hdf5-rust]: https://github.com/aldanor/hdf5-rust
 [adios2]: https://github.com/ornladios/ADIOS2/tree/c503940b06020fcbc1731424cca42f7f76dd4512
+[hdf5_request]: https://github.com/HDFGroup/hdf5/discussions/3339#discussioncomment-7179962
