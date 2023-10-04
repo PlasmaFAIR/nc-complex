@@ -139,6 +139,7 @@ TEST_CASE("Read test file") {
       std::array<std::complex<double>, len_x> data_ri_out;
       int var_ri_id = 0;
       REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri", &var_ri_id)});
+      REQUIRE(pfnc_is_complex(ncid, var_ri_id));
       REQUIRE(NetCDFResult{pfnc_get_vara_double_complex(
           ncid, var_ri_id, zeros, nullptr, cpp_to_c_complex(data_ri_out.data()))});
 
@@ -152,6 +153,7 @@ TEST_CASE("Read test file") {
       std::array<std::complex<double>, len_x> data_struct_out;
       int var_struct_id = 0;
       REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct", &var_struct_id)});
+      REQUIRE(pfnc_is_complex(ncid, var_struct_id));
       REQUIRE(NetCDFResult{
           pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
                                        cpp_to_c_complex(data_struct_out.data()))});
@@ -162,6 +164,7 @@ TEST_CASE("Read test file") {
       std::array<std::complex<double>, len_x> data_long_names_out;
       int var_long_names_id = 0;
       REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_long_names", &var_long_names_id)});
+      REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
       REQUIRE(NetCDFResult{
           pfnc_get_vara_double_complex(ncid, var_long_names_id, zeros, nullptr,
                                        cpp_to_c_complex(data_long_names_out.data()))});
