@@ -308,6 +308,14 @@ through the many bundled copies of netCDF-C. It's not immediately
 obvious why this is case, especially compared to uses of compound
 types in HDF5 code.
 
+
+Licence
+-------
+
+`nc-complex` is released under the MIT licence. The Python API
+includes [netCDF4-python][netcdf4], which is copyright Jeffrey
+Whitaker, and also released under the MIT licence.
+
 [netcdf4]: http://unidata.github.io/netcdf4-python/
 [cpp_memcpy_example]: https://en.cppreference.com/w/c/language/arithmetic_types#Complex_floating_types
 [h5py]: https://docs.h5py.org/en/stable/index.html
