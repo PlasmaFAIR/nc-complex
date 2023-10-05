@@ -7,7 +7,12 @@
 #include <complex.h>
 typedef _Dcomplex double_complex;
 #else
+#if defined(__cplusplus) && defined(__clang__)
+#include <complex>
+using double_complex = std::complex<double>;
+#else
 typedef double _Complex double_complex;
+#endif
 #endif
 
 #include <complex.h>
