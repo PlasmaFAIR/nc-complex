@@ -24,7 +24,7 @@ static const char *double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
 /// Return true if file already has our complex type
 bool file_has_complex_struct(int ncid, nc_type *typeidp) {
   const int err = nc_inq_typeid(ncid, double_complex_struct_name, typeidp);
-  return (err == NC_NOERR) && (typeidp > 0);
+  return (err == NC_NOERR) && (*typeidp > 0);
 }
 
 bool pfnc_is_complex(int ncid, int varid) {
@@ -122,7 +122,7 @@ bool pfnc_has_complex_dimension(int ncid, int nc_varid) {
   int num_dims;
   nc_inq_varndims(ncid, nc_varid, &num_dims);
 
-  int *dim_ids = (int *)malloc(num_dims * sizeof(int));
+  int *dim_ids = (int *)malloc((size_t)num_dims * sizeof(int));
   nc_inq_vardimid(ncid, nc_varid, dim_ids);
 
   // Now we check if any of the dimensions match one of our known
@@ -229,7 +229,7 @@ int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
 
   size_t *start_buffer = NULL;
   if (startp != NULL) {
-    start_buffer = (size_t *)malloc(sizeof(size_t) * numdims);
+    start_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
 
     for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
       start_buffer[i] = startp[i];
@@ -240,7 +240,7 @@ int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
 
   size_t *count_buffer = NULL;
   if (countp != NULL) {
-    count_buffer = (size_t *)malloc(sizeof(size_t) * numdims);
+    count_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
 
     for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
       count_buffer[i] = countp[i];
@@ -267,9 +267,8 @@ int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
 
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data) {
-  return pfnc_get_vara_double_complex(ncid, varid, coord_one, coord_one, data);
+  return pfnc_get_vara_double_complex(ncid, varid, indexp, coord_one, data);
 }
-
 
 int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
   const int ierr = nc_inq_varndims(ncid, varid, ndimsp);
@@ -299,7 +298,7 @@ int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
     if (ierr != NC_NOERR) {
       return ierr;
     }
-    buffer = (int*)malloc(sizeof(int) * numdims);
+    buffer = (int *)malloc(sizeof(int) * (size_t)numdims);
     allocated_internal_buffer = true;
   }
 
@@ -314,7 +313,7 @@ int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
       goto cleanup;
     }
     const size_t other_dims = (size_t)(numdims - 1);
-    for (size_t i = 0; i < (size_t)numdims; i++) {
+    for (size_t i = 0; i < other_dims; i++) {
       dimidsp[i] = buffer[i];
     }
   }

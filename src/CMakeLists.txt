@@ -10,9 +10,13 @@ target_include_directories(nc_complex
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 )
 
-target_compile_features(nc_complex PUBLIC c_std_99)
-
-target_link_libraries(nc_complex PUBLIC netCDF::netcdf)
+target_link_libraries(nc_complex
+  PUBLIC
+  netCDF::netcdf
+  PRIVATE
+  nc_complex_warnings
+  nc_complex_options
+)
 
 if (PROJECT_IS_TOP_LEVEL AND SKBUILD)
   install(TARGETS nc_complex DESTINATION ${SKBUILD_PROJECT_NAME})
