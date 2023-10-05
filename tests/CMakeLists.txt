@@ -7,10 +7,10 @@ project(CmakeConfigPackageTests LANGUAGES CXX)
 if(PROJECT_IS_TOP_LEVEL OR TEST_INSTALLED_VERSION)
   enable_testing()
 
-  find_package(myproject CONFIG REQUIRED) # for intro, project_options, ...
+  find_package(nc_complex CONFIG REQUIRED) # for intro, project_options, ...
 
-  if(NOT TARGET myproject_options)
-    message(FATAL_ERROR "Requiered config package not found!")
+  if(NOT TARGET nc_complex_options)
+    message(FATAL_ERROR "Required config package not found!")
     return() # be strictly paranoid for Template Janitor github action! CK
   endif()
 endif()
