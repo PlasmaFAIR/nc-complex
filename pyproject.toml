@@ -11,5 +11,9 @@ name = "nc_complex"
 description = "Nicer interface for complex types in netCDF"
 authors = [{name = "Peter Hill", email = "peter.hill@york.ac.uk"}]
 requires-python = ">=3.8"
-dependencies = ["netCDF4"]
+dependencies = [
+    "cftime",
+    "certifi",
+    "numpy",
+]
 version = "0.1.0"
