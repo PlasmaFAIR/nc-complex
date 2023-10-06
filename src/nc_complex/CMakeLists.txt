@@ -13,7 +13,9 @@ add_custom_command(
   DEPENDS _c_nc_complex.pyx
   VERBATIM
   COMMAND "${CYTHON}" "${CMAKE_CURRENT_SOURCE_DIR}/_c_nc_complex.pyx"
-          --output-file "${CMAKE_CURRENT_BINARY_DIR}/_c_nc_complex.c")
+          --output-file "${CMAKE_CURRENT_BINARY_DIR}/_c_nc_complex.c"
+          --3str
+)
 
 python_add_library(_c_nc_complex MODULE "${CMAKE_CURRENT_BINARY_DIR}/_c_nc_complex.c"
   WITH_SOABI)
@@ -43,6 +45,7 @@ add_custom_command(
           --include-dir "${CMAKE_CURRENT_BINARY_DIR}"
           --include-dir "${CMAKE_CURRENT_SOURCE_DIR}"
           --include-dir "${CMAKE_CURRENT_SOURCE_DIR}/netCDF4/include"
+          --3str
 )
 
 # TODO: work out how to configure this properly
