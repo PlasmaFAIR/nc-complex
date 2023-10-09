@@ -4,7 +4,7 @@ include(cmake/CPM.cmake)
 # CMAKE_CXX_FLAGS don't propagate out to other
 # targets
 function(nc_complex_setup_dependencies)
-  if(NOT TARGET Catch2::Catch2WithMain)
+  if(NOT TARGET Catch2::Catch2WithMain AND NOT SKBUILD)
     cpmaddpackage("gh:catchorg/Catch2@3.3.2")
   endif()
 endfunction()

@@ -18,6 +18,12 @@ target_link_libraries(nc_complex
   nc_complex_options
 )
 
+set_target_properties(nc_complex PROPERTIES
+  INSTALL_RPATH "$ORIGIN"
+  BUILD_RPATH_USE_ORIGIN TRUE
+  BUILD_WITH_INSTALL_RPATH TRUE
+  )
+
 if (PROJECT_IS_TOP_LEVEL AND SKBUILD)
   install(TARGETS nc_complex DESTINATION ${SKBUILD_PROJECT_NAME})
 endif()
