@@ -2,7 +2,7 @@
 requires = [
     "scikit-build-core",
     "oldest-supported-numpy",
-    "cython>=3.0",
+    "Cython>=3.0",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -17,6 +17,11 @@ dependencies = [
     "numpy",
 ]
 version = "0.1.0"
+
+[project.optional-dependencies]
+tests = [
+      "pytest >= 3.3.0",
+]
 
 [tool.cibuildwheel]
 archs = ["x86_64"]
