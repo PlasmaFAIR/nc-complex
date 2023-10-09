@@ -48,13 +48,10 @@ add_custom_command(
           --3str
 )
 
-# TODO: work out how to configure this properly
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/constants.pyx.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/constants.pyx")
-
 python_add_library(_pf_netCDF4 MODULE
   "${CMAKE_CURRENT_BINARY_DIR}/_pf_netCDF4.c"
   WITH_SOABI)
+target_include_directories(_pf_netCDF4 PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/netCDF4/include")
 target_link_libraries(_pf_netCDF4 PUBLIC netCDF::netcdf PRIVATE Python::NumPy nc_complex)
 set_target_properties(_pf_netCDF4 PROPERTIES
   INSTALL_RPATH "$ORIGIN"
