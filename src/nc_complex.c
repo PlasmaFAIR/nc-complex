@@ -49,7 +49,7 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
   }
 
   // As far as I can tell, all conventions put the real part first and
-  // the imaginary part second. I'm pretty sure all natiev language
+  // the imaginary part second. I'm pretty sure all native language
   // types are also this way round. That means we don't have to worry
   // about trying both combinations!
   char real_name[NC_MAX_NAME + 1];
