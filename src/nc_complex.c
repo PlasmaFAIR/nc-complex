@@ -109,8 +109,15 @@ bool dimension_is_complex(int ncid, int dim_id) {
   char name[NC_MAX_NAME + 1];
   nc_inq_dimname(ncid, dim_id, name);
 
+  const size_t name_length = strlen(name);
+
   // Check against known names of complex dimensions
-  if (strncmp(name, "ri", 2) == 0) {
+  // TODO: Generalise
+  if (strncmp(name, "ri", name_length) == 0) {
+    return true;
+  }
+
+  if (strncmp(name, "complex", name_length) == 0) {
     return true;
   }
 
