@@ -56,6 +56,10 @@ python_add_library(_pf_netCDF4 MODULE
   WITH_SOABI)
 target_include_directories(_pf_netCDF4 PRIVATE "${_external_netCDF4_dir}/include")
 target_link_libraries(_pf_netCDF4 PUBLIC netCDF::netcdf PRIVATE Python::NumPy nc_complex)
+
+include(LinkHDF5IfRequired)
+link_hdf5_if_required(_pf_netCDF4)
+
 set_target_properties(_pf_netCDF4 PROPERTIES
   INSTALL_RPATH "$ORIGIN"
   BUILD_RPATH_USE_ORIGIN TRUE
