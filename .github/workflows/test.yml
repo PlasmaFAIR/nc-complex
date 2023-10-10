@@ -92,7 +92,7 @@ jobs:
         run: |
           pip --version
           pip install --upgrade pip
-          pip install .[tests]
+          pip install -v .[tests]
 
       - name: Test
         run: pytest -vv
