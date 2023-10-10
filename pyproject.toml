@@ -20,7 +20,8 @@ version = "0.1.0"
 
 [project.optional-dependencies]
 tests = [
-      "pytest >= 3.3.0",
+    "pytest >= 3.3.0",
+    "netCDF4 ~= 1.6.0",
 ]
 
 [tool.cibuildwheel]
