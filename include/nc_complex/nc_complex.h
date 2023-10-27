@@ -6,12 +6,15 @@
 #ifdef _MSC_VER
 #include <complex.h>
 typedef _Dcomplex double_complex;
+typedef _Fcomplex float_complex;
 #else
 #if defined(__cplusplus) && defined(__clang__)
 #include <complex>
 using double_complex = std::complex<double>;
+using float_complex = std::complex<float>;
 #else
 typedef double _Complex double_complex;
+typedef float _Complex float_complex;
 #endif
 #endif
 
@@ -30,6 +33,14 @@ inline std::complex<double> *c_to_cpp_complex(double_complex *data) {
   return reinterpret_cast<std::complex<double> *>(data);
 }
 
+inline float_complex *cpp_to_c_complex(std::complex<float> *data) {
+  return reinterpret_cast<float_complex *>(data);
+}
+
+inline std::complex<float> *c_to_cpp_complex(float_complex *data) {
+  return reinterpret_cast<std::complex<float> *>(data);
+}
+
 extern "C" {
 #endif
 
@@ -43,6 +54,7 @@ bool pfnc_has_complex_dimension(int ncid, int varid);
 
 /// Create complex datatype if it doesn't already exist
 int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);
+int pfnc_get_float_complex_typeid(int ncid, nc_type *nc_typeid);
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double_complex *op);
@@ -55,6 +67,16 @@ int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data);
 
+int pfnc_put_vara_float_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, const float_complex *op);
+
+int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, float_complex *ip);
+
+int pfnc_put_var1_float_complex(int ncid, int varid, const size_t *indexp,
+                                 const float_complex *data);
+int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
+                                 float_complex *data);
 
 // Custom shims for lying about dimensional variables
 int pfnc_inq_varndims(int ncid, int varid, int *ndimsp);

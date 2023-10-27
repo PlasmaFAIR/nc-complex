@@ -20,10 +20,16 @@
 static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
 static const char *double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
+static const char *float_complex_struct_name = "_PFNC_FLOAT_COMPLEX_TYPE";
 
 /// Return true if file already has our complex type
-bool file_has_complex_struct(int ncid, nc_type *typeidp) {
+bool file_has_double_complex_struct(int ncid, nc_type *typeidp) {
   const int err = nc_inq_typeid(ncid, double_complex_struct_name, typeidp);
+  return (err == NC_NOERR) && (*typeidp > 0);
+}
+
+bool file_has_float_complex_struct(int ncid, nc_type *typeidp) {
+  const int err = nc_inq_typeid(ncid, float_complex_struct_name, typeidp);
   return (err == NC_NOERR) && (*typeidp > 0);
 }
 
@@ -185,7 +191,7 @@ bool pfnc_is_complex_type(int ncid, int varid) {
 }
 
 int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
-  if (file_has_complex_struct(ncid, type_id)) {
+  if (file_has_double_complex_struct(ncid, type_id)) {
     return NC_NOERR;
   }
 
@@ -196,6 +202,20 @@ int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
 
   return NC_NOERR;
 }
+
+int pfnc_get_float_complex_typeid(int ncid, nc_type *type_id) {
+  if (file_has_float_complex_struct(ncid, type_id)) {
+    return NC_NOERR;
+  }
+
+  CHECK(nc_def_compound(ncid, sizeof(float_complex), float_complex_struct_name,
+                        type_id));
+  CHECK(nc_insert_compound(ncid, *type_id, "r", 0, NC_FLOAT));
+  CHECK(nc_insert_compound(ncid, *type_id, "i", sizeof(float), NC_FLOAT));
+
+  return NC_NOERR;
+}
+
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double _Complex *op) {
@@ -275,6 +295,86 @@ int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data) {
   return pfnc_get_vara_double_complex(ncid, varid, indexp, coord_one, data);
+}
+
+int pfnc_put_vara_float_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, const float _Complex *op) {
+  if (!pfnc_is_complex(ncid, varid)) {
+    return NC_EBADTYPE;
+  }
+
+  // TODO: handle start/count/stride correctly for dimension convention
+  // TODO: handle converting different float sizes
+
+  return nc_put_vara(ncid, varid, startp, countp, op);
+}
+
+int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, float_complex *ip) {
+  if (!pfnc_is_complex(ncid, varid)) {
+    return NC_EBADTYPE;
+  }
+
+  // TODO: handle converting different float sizes
+
+  // Check if we can get away without fudging count/start sizes
+  if (((startp == NULL) && (countp == NULL)) ||
+      !pfnc_has_complex_dimension(ncid, varid)) {
+    return nc_get_vara(ncid, varid, startp, countp, ip);
+  }
+
+  // The real variable has a complex dimension, but we're pretending
+  // it doesn't, so now we need start/count arrays of the real size
+
+  int numdims = 0;
+  {
+    const int ierr = nc_inq_varndims(ncid, varid, &numdims);
+    if (ierr != NC_NOERR) {
+      return ierr;
+    }
+  }
+
+  size_t *start_buffer = NULL;
+  if (startp != NULL) {
+    start_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
+
+    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
+      start_buffer[i] = startp[i];
+    }
+    // Start complex dim at zero so we get both parts
+    start_buffer[numdims - 1] = 0;
+  }
+
+  size_t *count_buffer = NULL;
+  if (countp != NULL) {
+    count_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
+
+    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
+      count_buffer[i] = countp[i];
+    }
+    // Always get both parts of complex dim
+    count_buffer[numdims - 1] = 2;
+  }
+
+  const int ierr = nc_get_vara(ncid, varid, start_buffer, count_buffer, ip);
+
+  if (start_buffer != NULL) {
+    free(start_buffer);
+  }
+  if (count_buffer != NULL) {
+    free(count_buffer);
+  }
+  return ierr;
+}
+
+int pfnc_put_var1_float_complex(int ncid, int varid, const size_t *indexp,
+                                 const float_complex *data) {
+  return pfnc_put_vara_float_complex(ncid, varid, indexp, coord_one, data);
+}
+
+int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
+                                 float_complex *data) {
+  return pfnc_get_vara_float_complex(ncid, varid, indexp, coord_one, data);
 }
 
 int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
