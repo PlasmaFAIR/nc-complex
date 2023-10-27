@@ -377,9 +377,15 @@ TEST_CASE("Write test file") {
   int type_id{};
   REQUIRE(NetCDFResult{pfnc_get_double_complex_typeid(ncid, &type_id)});
 
-  int type_id2{};
-  REQUIRE(NetCDFResult{pfnc_get_double_complex_typeid(ncid, &type_id2)});
-  REQUIRE(type_id == type_id2);
+  SECTION("Check getting type is idempotent") {
+    int type_id2{};
+    REQUIRE(NetCDFResult{pfnc_get_double_complex_typeid(ncid, &type_id2)});
+    REQUIRE(type_id == type_id2);
+  }
+
+  SECTION("Check base type of compound type") {
+    REQUIRE(pfnc_base_type_of_compound_complex(ncid, type_id) == NC_DOUBLE);
+  }
 
   int var_struct_id = 0;
   const std::array<int, 1> dim_struct_ids{{x_dim_id}};

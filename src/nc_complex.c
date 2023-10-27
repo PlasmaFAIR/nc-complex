@@ -37,6 +37,13 @@ bool pfnc_is_complex(int ncid, int varid) {
   return pfnc_is_complex_type(ncid, varid) || pfnc_has_complex_dimension(ncid, varid);
 }
 
+nc_type pfnc_base_type_of_compound_complex(int ncid, int nc_typeid) {
+  nc_type real_field_type;
+  nc_inq_compound_field(ncid, nc_typeid, 0, NULL, NULL, &real_field_type, NULL, NULL);
+
+  return real_field_type;
+}
+
 /// Return true if a compound type is compatible with a known convention
 bool compound_type_is_compatible(int ncid, int nc_typeid) {
 

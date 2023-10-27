@@ -56,6 +56,11 @@ bool pfnc_has_complex_dimension(int ncid, int varid);
 int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);
 int pfnc_get_float_complex_typeid(int ncid, nc_type *nc_typeid);
 
+/// Get the base numerical type of a compound complex type
+///
+/// Assumes that `nc_typeid` is already known to be a complex compound type
+nc_type pfnc_base_type_of_compound_complex(int ncid, int nc_typeid);
+
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double_complex *op);
 
