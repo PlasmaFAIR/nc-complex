@@ -198,6 +198,8 @@ bool pfnc_is_complex_type(int ncid, int varid) {
 }
 
 int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
+  // TODO: Error if not netCDF4
+
   if (file_has_double_complex_struct(ncid, type_id)) {
     return NC_NOERR;
   }
@@ -211,6 +213,8 @@ int pfnc_get_double_complex_typeid(int ncid, nc_type *type_id) {
 }
 
 int pfnc_get_float_complex_typeid(int ncid, nc_type *type_id) {
+  // TODO: Error if not netCDF4
+
   if (file_has_float_complex_struct(ncid, type_id)) {
     return NC_NOERR;
   }
