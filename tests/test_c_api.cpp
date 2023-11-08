@@ -27,7 +27,6 @@ constexpr std::array<std::complex<double>, len_x / 2> double_strided_data = {
 constexpr std::array<std::complex<float>, len_x / 2> float_strided_data = {
     {{2.f, 3.f}, {6.f, 7.f}, {10.f, 11.f}}};
 
-
 constexpr size_t zeros[NC_MAX_VAR_DIMS] = {0};
 
 #define PFNC_CHECK(func)                                                               \
@@ -57,6 +56,10 @@ std::ostream &operator<<(std::ostream &os, NetCDFResult const &value) {
   os << nc_strerror(value.ierr);
   return os;
 }
+
+/// Helper macro for `REQUIRE` that takes a call to a netCDF function and checks it
+/// returns ok
+#define REQUIRE_NETCDF(funccall) REQUIRE(NetCDFResult{funccall})
 
 /// Create a netCDF file with a variety of complex conventions
 int create_file(const fs::path &filename) {
@@ -152,57 +155,54 @@ TEST_CASE("Read test file") {
   }
 
   int ncid = 0;
-  REQUIRE(NetCDFResult{nc_open(test_file.c_str(), NC_NOWRITE, &ncid)});
+  REQUIRE_NETCDF(nc_open(test_file.c_str(), NC_NOWRITE, &ncid));
 
   SECTION("Using netCDF API") {
     SECTION("Reading (double) dimensional variable") {
       std::array<std::complex<double>, len_x> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri", &var_ri_id)});
-      REQUIRE(NetCDFResult{nc_get_var(ncid, var_ri_id, data_ri_out.data())});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri", &var_ri_id));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_ri_id, data_ri_out.data()));
       REQUIRE(data_ri_out == double_data);
     }
 
     SECTION("Reading (double) structure variable") {
       std::array<std::complex<double>, len_x> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct", &var_struct_id)});
-      REQUIRE(NetCDFResult{nc_get_var(ncid, var_struct_id, data_struct_out.data())});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct", &var_struct_id));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_struct_id, data_struct_out.data()));
       REQUIRE(data_struct_out == double_data);
     }
 
     SECTION("Reading (double) structure variable with long names") {
       std::array<std::complex<double>, len_x> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_long_names", &var_long_names_id)});
-      REQUIRE(NetCDFResult{
-          nc_get_var(ncid, var_long_names_id, data_long_names_out.data())});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
       REQUIRE(data_long_names_out == double_data);
     }
 
     SECTION("Reading (float) dimensional variable") {
       std::array<std::complex<float>, len_x> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri_float", &var_ri_id)});
-      REQUIRE(NetCDFResult{nc_get_var(ncid, var_ri_id, data_ri_out.data())});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri_float", &var_ri_id));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_ri_id, data_ri_out.data()));
       REQUIRE(data_ri_out == float_data);
     }
 
     SECTION("Reading (float) structure variable") {
       std::array<std::complex<float>, len_x> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct_float", &var_struct_id)});
-      REQUIRE(NetCDFResult{nc_get_var(ncid, var_struct_id, data_struct_out.data())});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct_float", &var_struct_id));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_struct_id, data_struct_out.data()));
       REQUIRE(data_struct_out == float_data);
     }
 
     SECTION("Reading (float) structure variable with long names") {
       std::array<std::complex<float>, len_x> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{
-          nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id)});
-      REQUIRE(NetCDFResult{
-          nc_get_var(ncid, var_long_names_id, data_long_names_out.data())});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
       REQUIRE(data_long_names_out == float_data);
     }
   }
@@ -214,13 +214,13 @@ TEST_CASE("Read test file") {
     SECTION("Reading (double) dimensional variable") {
       std::array<std::complex<double>, len_x> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri", &var_ri_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri", &var_ri_id));
       REQUIRE(pfnc_is_complex(ncid, var_ri_id));
-      REQUIRE(NetCDFResult{pfnc_get_vara(ncid, var_ri_id, starts.data(), counts.data(),
-                                         cpp_to_c_complex(data_ri_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vara(ncid, var_ri_id, starts.data(), counts.data(),
+                                   cpp_to_c_complex(data_ri_out.data())));
 
       int var_ri_ndims = 0;
-      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
       REQUIRE(var_ri_ndims == 1);
       REQUIRE(data_ri_out == double_data);
     }
@@ -228,37 +228,35 @@ TEST_CASE("Read test file") {
     SECTION("Reading (double) structure variable") {
       std::array<std::complex<double>, len_x> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct", &var_struct_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct", &var_struct_id));
       REQUIRE(pfnc_is_complex(ncid, var_struct_id));
-      REQUIRE(
-          NetCDFResult{pfnc_get_vara(ncid, var_struct_id, starts.data(), counts.data(),
-                                     cpp_to_c_complex(data_struct_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vara(ncid, var_struct_id, starts.data(), counts.data(),
+                                   cpp_to_c_complex(data_struct_out.data())));
       REQUIRE(data_struct_out == double_data);
     }
 
     SECTION("Reading (double) structure variable with long names") {
       std::array<std::complex<double>, len_x> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_long_names", &var_long_names_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
       REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
-      REQUIRE(NetCDFResult{
-          pfnc_get_vara(ncid, var_long_names_id, starts.data(), counts.data(),
-                        cpp_to_c_complex(data_long_names_out.data()))});
-      REQUIRE(NetCDFResult{
-          nc_get_var(ncid, var_long_names_id, data_long_names_out.data())});
+      REQUIRE_NETCDF(pfnc_get_vara(ncid, var_long_names_id, starts.data(),
+                                   counts.data(),
+                                   cpp_to_c_complex(data_long_names_out.data())));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
       REQUIRE(data_long_names_out == double_data);
     }
 
     SECTION("Reading (float) dimensional variable") {
       std::array<std::complex<float>, len_x> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri_float", &var_ri_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri_float", &var_ri_id));
       REQUIRE(pfnc_is_complex(ncid, var_ri_id));
-      REQUIRE(NetCDFResult{pfnc_get_vara(ncid, var_ri_id, starts.data(), counts.data(),
-                                         cpp_to_c_complex(data_ri_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vara(ncid, var_ri_id, starts.data(), counts.data(),
+                                   cpp_to_c_complex(data_ri_out.data())));
 
       int var_ri_ndims = 0;
-      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
       REQUIRE(var_ri_ndims == 1);
       REQUIRE(data_ri_out == float_data);
     }
@@ -266,25 +264,22 @@ TEST_CASE("Read test file") {
     SECTION("Reading (float) structure variable") {
       std::array<std::complex<float>, len_x> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct_float", &var_struct_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct_float", &var_struct_id));
       REQUIRE(pfnc_is_complex(ncid, var_struct_id));
-      REQUIRE(
-          NetCDFResult{pfnc_get_vara(ncid, var_struct_id, starts.data(), counts.data(),
-                                     cpp_to_c_complex(data_struct_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vara(ncid, var_struct_id, starts.data(), counts.data(),
+                                   cpp_to_c_complex(data_struct_out.data())));
       REQUIRE(data_struct_out == float_data);
     }
 
     SECTION("Reading (float) structure variable with long names") {
       std::array<std::complex<float>, len_x> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{
-          nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id));
       REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
-      REQUIRE(NetCDFResult{
-          pfnc_get_vara(ncid, var_long_names_id, starts.data(), counts.data(),
-                        cpp_to_c_complex(data_long_names_out.data()))});
-      REQUIRE(NetCDFResult{
-          nc_get_var(ncid, var_long_names_id, data_long_names_out.data())});
+      REQUIRE_NETCDF(pfnc_get_vara(ncid, var_long_names_id, starts.data(),
+                                   counts.data(),
+                                   cpp_to_c_complex(data_long_names_out.data())));
+      REQUIRE_NETCDF(nc_get_var(ncid, var_long_names_id, data_long_names_out.data()));
       REQUIRE(data_long_names_out == float_data);
     }
   }
@@ -293,13 +288,13 @@ TEST_CASE("Read test file") {
     SECTION("Reading (double) dimensional variable") {
       std::array<std::complex<double>, len_x> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri", &var_ri_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri", &var_ri_id));
       REQUIRE(pfnc_is_complex(ncid, var_ri_id));
-      REQUIRE(NetCDFResult{pfnc_get_vara_double_complex(
-          ncid, var_ri_id, zeros, nullptr, cpp_to_c_complex(data_ri_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vara_double_complex(
+          ncid, var_ri_id, zeros, nullptr, cpp_to_c_complex(data_ri_out.data())));
 
       int var_ri_ndims = 0;
-      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
       REQUIRE(var_ri_ndims == 1);
       REQUIRE(data_ri_out == double_data);
     }
@@ -307,35 +302,35 @@ TEST_CASE("Read test file") {
     SECTION("Reading (double) structure variable") {
       std::array<std::complex<double>, len_x> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct", &var_struct_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct", &var_struct_id));
       REQUIRE(pfnc_is_complex(ncid, var_struct_id));
-      REQUIRE(NetCDFResult{
+      REQUIRE_NETCDF(
           pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
-                                       cpp_to_c_complex(data_struct_out.data()))});
+                                       cpp_to_c_complex(data_struct_out.data())));
       REQUIRE(data_struct_out == double_data);
     }
 
     SECTION("Reading (double) structure variable with long names") {
       std::array<std::complex<double>, len_x> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_long_names", &var_long_names_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
       REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
-      REQUIRE(NetCDFResult{
+      REQUIRE_NETCDF(
           pfnc_get_vara_double_complex(ncid, var_long_names_id, zeros, nullptr,
-                                       cpp_to_c_complex(data_long_names_out.data()))});
+                                       cpp_to_c_complex(data_long_names_out.data())));
       REQUIRE(data_long_names_out == double_data);
     }
 
     SECTION("Reading (float) dimensional variable") {
       std::array<std::complex<float>, len_x> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri_float", &var_ri_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri_float", &var_ri_id));
       REQUIRE(pfnc_is_complex(ncid, var_ri_id));
-      REQUIRE(NetCDFResult{pfnc_get_vara_float_complex(
-          ncid, var_ri_id, zeros, nullptr, cpp_to_c_complex(data_ri_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vara_float_complex(ncid, var_ri_id, zeros, nullptr,
+                                                 cpp_to_c_complex(data_ri_out.data())));
 
       int var_ri_ndims = 0;
-      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
       REQUIRE(var_ri_ndims == 1);
       REQUIRE(data_ri_out == float_data);
     }
@@ -343,23 +338,22 @@ TEST_CASE("Read test file") {
     SECTION("Reading (float) structure variable") {
       std::array<std::complex<float>, len_x> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct_float", &var_struct_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct_float", &var_struct_id));
       REQUIRE(pfnc_is_complex(ncid, var_struct_id));
-      REQUIRE(NetCDFResult{
+      REQUIRE_NETCDF(
           pfnc_get_vara_float_complex(ncid, var_struct_id, zeros, nullptr,
-                                      cpp_to_c_complex(data_struct_out.data()))});
+                                      cpp_to_c_complex(data_struct_out.data())));
       REQUIRE(data_struct_out == float_data);
     }
 
     SECTION("Reading (float) structure variable with long names") {
       std::array<std::complex<float>, len_x> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{
-          nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id));
       REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
-      REQUIRE(NetCDFResult{
+      REQUIRE_NETCDF(
           pfnc_get_vara_float_complex(ncid, var_long_names_id, zeros, nullptr,
-                                      cpp_to_c_complex(data_long_names_out.data()))});
+                                      cpp_to_c_complex(data_long_names_out.data())));
       REQUIRE(data_long_names_out == float_data);
     }
   }
@@ -372,14 +366,14 @@ TEST_CASE("Read test file") {
     SECTION("Reading (double) dimensional variable") {
       std::array<std::complex<double>, len_x / 2> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri", &var_ri_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri", &var_ri_id));
       REQUIRE(pfnc_is_complex(ncid, var_ri_id));
-      REQUIRE(NetCDFResult{pfnc_get_vars_double_complex(
+      REQUIRE_NETCDF(pfnc_get_vars_double_complex(
           ncid, var_ri_id, starts.data(), counts.data(), strides.data(),
-          cpp_to_c_complex(data_ri_out.data()))});
+          cpp_to_c_complex(data_ri_out.data())));
 
       int var_ri_ndims = 0;
-      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
       REQUIRE(var_ri_ndims == 1);
       REQUIRE(data_ri_out == double_strided_data);
     }
@@ -387,36 +381,36 @@ TEST_CASE("Read test file") {
     SECTION("Reading (double) structure variable") {
       std::array<std::complex<double>, len_x / 2> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct", &var_struct_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct", &var_struct_id));
       REQUIRE(pfnc_is_complex(ncid, var_struct_id));
-      REQUIRE(NetCDFResult{pfnc_get_vars_double_complex(
+      REQUIRE_NETCDF(pfnc_get_vars_double_complex(
           ncid, var_struct_id, starts.data(), counts.data(), strides.data(),
-          cpp_to_c_complex(data_struct_out.data()))});
+          cpp_to_c_complex(data_struct_out.data())));
       REQUIRE(data_struct_out == double_strided_data);
     }
 
     SECTION("Reading (double) structure variable with long names") {
       std::array<std::complex<double>, len_x / 2> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_long_names", &var_long_names_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names", &var_long_names_id));
       REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
-      REQUIRE(NetCDFResult{pfnc_get_vars_double_complex(
+      REQUIRE_NETCDF(pfnc_get_vars_double_complex(
           ncid, var_long_names_id, starts.data(), counts.data(), strides.data(),
-          cpp_to_c_complex(data_long_names_out.data()))});
+          cpp_to_c_complex(data_long_names_out.data())));
       REQUIRE(data_long_names_out == double_strided_data);
     }
 
     SECTION("Reading (float) dimensional variable") {
       std::array<std::complex<float>, len_x / 2> data_ri_out;
       int var_ri_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_ri_float", &var_ri_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri_float", &var_ri_id));
       REQUIRE(pfnc_is_complex(ncid, var_ri_id));
-      REQUIRE(NetCDFResult{pfnc_get_vars_float_complex(
-          ncid, var_ri_id, starts.data(), counts.data(), strides.data(),
-          cpp_to_c_complex(data_ri_out.data()))});
+      REQUIRE_NETCDF(pfnc_get_vars_float_complex(ncid, var_ri_id, starts.data(),
+                                                 counts.data(), strides.data(),
+                                                 cpp_to_c_complex(data_ri_out.data())));
 
       int var_ri_ndims = 0;
-      REQUIRE(NetCDFResult{pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims)});
+      REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
       REQUIRE(var_ri_ndims == 1);
       REQUIRE(data_ri_out == float_strided_data);
     }
@@ -424,23 +418,22 @@ TEST_CASE("Read test file") {
     SECTION("Reading (float) structure variable") {
       std::array<std::complex<float>, len_x / 2> data_struct_out;
       int var_struct_id = 0;
-      REQUIRE(NetCDFResult{nc_inq_varid(ncid, "data_struct_float", &var_struct_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct_float", &var_struct_id));
       REQUIRE(pfnc_is_complex(ncid, var_struct_id));
-      REQUIRE(NetCDFResult{pfnc_get_vars_float_complex(
+      REQUIRE_NETCDF(pfnc_get_vars_float_complex(
           ncid, var_struct_id, starts.data(), counts.data(), strides.data(),
-          cpp_to_c_complex(data_struct_out.data()))});
+          cpp_to_c_complex(data_struct_out.data())));
       REQUIRE(data_struct_out == float_strided_data);
     }
 
     SECTION("Reading (float) structure variable with long names") {
       std::array<std::complex<float>, len_x / 2> data_long_names_out;
       int var_long_names_id = 0;
-      REQUIRE(NetCDFResult{
-          nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id)});
+      REQUIRE_NETCDF(nc_inq_varid(ncid, "data_long_names_float", &var_long_names_id));
       REQUIRE(pfnc_is_complex(ncid, var_long_names_id));
-      REQUIRE(NetCDFResult{pfnc_get_vars_float_complex(
+      REQUIRE_NETCDF(pfnc_get_vars_float_complex(
           ncid, var_long_names_id, starts.data(), counts.data(), strides.data(),
-          cpp_to_c_complex(data_long_names_out.data()))});
+          cpp_to_c_complex(data_long_names_out.data())));
       REQUIRE(data_long_names_out == float_strided_data);
     }
   }
@@ -453,41 +446,39 @@ TEST_CASE("Write test file") {
   fs::remove(full_filename);
 
   int ncid = 0;
-  REQUIRE(
-      NetCDFResult{nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid)});
+  REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
   int x_dim_id = 0;
-  REQUIRE(NetCDFResult{nc_def_dim(ncid, "x", len_x, &x_dim_id)});
+  REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
 
   int type_id{};
-  REQUIRE(NetCDFResult{pfnc_get_double_complex_typeid(ncid, &type_id)});
+  REQUIRE_NETCDF(pfnc_get_double_complex_typeid(ncid, &type_id));
 
   SECTION("Check getting type is idempotent") {
     int type_id2{};
-    REQUIRE(NetCDFResult{pfnc_get_double_complex_typeid(ncid, &type_id2)});
+    REQUIRE_NETCDF(pfnc_get_double_complex_typeid(ncid, &type_id2));
     REQUIRE(type_id == type_id2);
   }
 
   SECTION("Check base type of compound type") {
     int base_type_id{};
-    REQUIRE(NetCDFResult{pfnc_complex_base_type(ncid, type_id, &base_type_id)});
+    REQUIRE_NETCDF(pfnc_complex_base_type(ncid, type_id, &base_type_id));
     REQUIRE(base_type_id == NC_DOUBLE);
   }
 
   int var_struct_id = 0;
   const std::array<int, 1> dim_struct_ids{{x_dim_id}};
-  REQUIRE(NetCDFResult{nc_def_var(ncid, "data_struct", type_id, 1,
-                                  dim_struct_ids.data(), &var_struct_id)});
+  REQUIRE_NETCDF(nc_def_var(ncid, "data_struct", type_id, 1, dim_struct_ids.data(),
+                            &var_struct_id));
 
-  REQUIRE(NetCDFResult{nc_put_var(ncid, var_struct_id, double_data.data())});
+  REQUIRE_NETCDF(nc_put_var(ncid, var_struct_id, double_data.data()));
 
   SECTION("Reading structure variable") {
     std::array<std::complex<double>, len_x> data_struct_out;
-    REQUIRE(NetCDFResult{
-        pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
-                                     cpp_to_c_complex(data_struct_out.data()))});
+    REQUIRE_NETCDF(pfnc_get_vara_double_complex(
+        ncid, var_struct_id, zeros, nullptr, cpp_to_c_complex(data_struct_out.data())));
     REQUIRE(data_struct_out == double_data);
   }
 
-  REQUIRE(NetCDFResult{nc_close(ncid)});
+  REQUIRE_NETCDF(nc_close(ncid));
 }
