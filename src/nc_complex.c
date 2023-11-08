@@ -554,6 +554,64 @@ cleanup:
   return ierr;
 }
 
+int pfnc_def_var_chunking(int ncid, int varid, int storage, const size_t *chunksizesp) {
+  if (chunksizesp == NULL || !pfnc_has_complex_dimension(ncid, varid)) {
+    return nc_def_var_chunking(ncid, varid, storage, chunksizesp);
+  }
+
+  // The real variable has a complex dimension, but we're pretending
+  // it doesn't, so now we need start/count arrays of the real size
+
+  int numdims = 0;
+  {
+    const int ierr = nc_inq_varndims(ncid, varid, &numdims);
+    if (ierr != NC_NOERR) {
+      return ierr;
+    }
+  }
+
+  // Copy chunksize buffer, appending an extra element for the
+  // complex dimension
+  size_t *chunk_buffer = copy_complex_dim_size_t_array(chunksizesp, numdims, 2);
+
+  const int ierr = nc_def_var_chunking(ncid, varid, storage, chunk_buffer);
+  free(chunk_buffer);
+  return ierr;
+}
+
+int pfnc_inq_var_chunking(int ncid, int varid, int *storagep, size_t *chunksizesp) {
+  if (chunksizesp == NULL || !pfnc_has_complex_dimension(ncid, varid)) {
+    return nc_inq_var_chunking(ncid, varid, storagep, chunksizesp);
+  }
+
+  int numdims = 0;
+  {
+    const int ierr = nc_inq_varndims(ncid, varid, &numdims);
+    if (ierr != NC_NOERR) {
+      return ierr;
+    }
+  }
+
+  // Copy chunksize buffer, appending an extra element for the
+  // complex dimension
+  size_t *chunk_buffer = copy_complex_dim_size_t_array(chunksizesp, numdims, 2);
+
+  const int ierr = nc_inq_var_chunking(ncid, varid, storagep, chunk_buffer);
+
+  if (ierr != NC_NOERR) {
+    goto cleanup;
+  }
+
+  const size_t other_dims = (size_t)(numdims - 1);
+  for (size_t i = 0; i < other_dims; i++) {
+    chunksizesp[i] = chunk_buffer[i];
+  }
+
+cleanup:
+  free(chunk_buffer);
+  return ierr;
+}
+
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip) {
   if (pfnc_is_complex(ncid, varid)) {

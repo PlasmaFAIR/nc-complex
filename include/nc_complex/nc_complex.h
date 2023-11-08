@@ -113,6 +113,9 @@ int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
   return pfnc_inq_var(ncid, varid, NULL, NULL, NULL, dimidsp, NULL);
 }
 
+int pfnc_def_var_chunking(int ncid, int varid, int storage, const size_t *chunksizesp);
+int pfnc_inq_var_chunking(int ncid, int varid, int *storagep, size_t *chunksizesp);
+
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip);
 int pfnc_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,

@@ -562,6 +562,15 @@ TEST_CASE("Write complex-dimensioned variable") {
     REQUIRE(base_type_id == NC_DOUBLE);
   }
 
+  SECTION("Chunking") {
+    constexpr std::array<std::size_t, 1> chunk_sizes {{len_x / 2}};
+    REQUIRE_NETCDF(pfnc_def_var_chunking(ncid, var_id, NC_CHUNKED, chunk_sizes.data()));
+
+    std::array<std::size_t, 1> chunk_sizes_out{};
+    REQUIRE_NETCDF(pfnc_inq_var_chunking(ncid, var_id, nullptr, chunk_sizes_out.data()));
+    REQUIRE(chunk_sizes_out == chunk_sizes);
+  }
+
   REQUIRE_NETCDF(nc_put_var(ncid, var_id, double_data.data()));
 
   SECTION("Reading variable") {
