@@ -199,6 +199,41 @@ bool is_compound_type(int ncid, int type_id) {
   return class_type == NC_COMPOUND;
 }
 
+/// Copy an array meant for a complex-dimensioned variable
+size_t *copy_complex_dim_size_t_array(const size_t *old_array, int numdims,
+                                      size_t complex_dim_value) {
+  size_t *new_buffer = NULL;
+
+  if (old_array != NULL) {
+    new_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
+
+    size_t last_dim = (size_t)(numdims - 1);
+    for (size_t i = 0; i < last_dim; i++) {
+      new_buffer[i] = old_array[i];
+    }
+
+    new_buffer[last_dim] = complex_dim_value;
+  }
+  return new_buffer;
+}
+
+ptrdiff_t *copy_complex_dim_ptrdiff_t_array(const ptrdiff_t *old_array, int numdims,
+                                            ptrdiff_t complex_dim_value) {
+  ptrdiff_t *new_buffer = NULL;
+
+  if (old_array != NULL) {
+    new_buffer = (ptrdiff_t *)malloc(sizeof(ptrdiff_t) * (size_t)numdims);
+
+    size_t last_dim = (size_t)(numdims - 1);
+    for (size_t i = 0; i < last_dim; i++) {
+      new_buffer[i] = old_array[i];
+    }
+
+    new_buffer[last_dim] = complex_dim_value;
+  }
+  return new_buffer;
+}
+
 bool pfnc_is_complex_type(int ncid, int varid) {
   nc_type var_type_id;
   if (nc_inq_vartype(ncid, varid, &var_type_id)) {
@@ -278,27 +313,10 @@ int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
     }
   }
 
-  size_t *start_buffer = NULL;
-  if (startp != NULL) {
-    start_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
-
-    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
-      start_buffer[i] = startp[i];
-    }
-    // Start complex dim at zero so we get both parts
-    start_buffer[numdims - 1] = 0;
-  }
-
-  size_t *count_buffer = NULL;
-  if (countp != NULL) {
-    count_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
-
-    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
-      count_buffer[i] = countp[i];
-    }
-    // Always get both parts of complex dim
-    count_buffer[numdims - 1] = 2;
-  }
+  // Copy start/count buffers, appending an extra element for the
+  // complex dimension. This dimension starts at 0 and has 2 elements
+  size_t *start_buffer = copy_complex_dim_size_t_array(startp, numdims, 0);
+  size_t *count_buffer = copy_complex_dim_size_t_array(countp, numdims, 2);
 
   const int ierr = nc_get_vara(ncid, varid, start_buffer, count_buffer, ip);
 
@@ -358,27 +376,10 @@ int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
     }
   }
 
-  size_t *start_buffer = NULL;
-  if (startp != NULL) {
-    start_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
-
-    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
-      start_buffer[i] = startp[i];
-    }
-    // Start complex dim at zero so we get both parts
-    start_buffer[numdims - 1] = 0;
-  }
-
-  size_t *count_buffer = NULL;
-  if (countp != NULL) {
-    count_buffer = (size_t *)malloc(sizeof(size_t) * (size_t)numdims);
-
-    for (size_t i = 0; i < (size_t)(numdims - 1); i++) {
-      count_buffer[i] = countp[i];
-    }
-    // Always get both parts of complex dim
-    count_buffer[numdims - 1] = 2;
-  }
+  // Copy start/count buffers, appending an extra element for the
+  // complex dimension. This dimension starts at 0 and has 2 elements
+  size_t *start_buffer = copy_complex_dim_size_t_array(startp, numdims, 0);
+  size_t *count_buffer = copy_complex_dim_size_t_array(countp, numdims, 2);
 
   const int ierr = nc_get_vara(ncid, varid, start_buffer, count_buffer, ip);
 
