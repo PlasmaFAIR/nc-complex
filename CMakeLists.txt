@@ -35,9 +35,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(netCDF REQUIRED)
 
 add_subdirectory(src)
-if (SKBUILD)
-  add_subdirectory(src/nc_complex)
-endif()
 
 if (PROJECT_IS_TOP_LEVEL AND NOT SKBUILD)
   include(CTest)
