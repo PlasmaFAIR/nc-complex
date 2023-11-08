@@ -59,8 +59,11 @@ int pfnc_get_float_complex_typeid(int ncid, nc_type *nc_typeid);
 /// Get the base numerical type of a complex type
 ///
 /// Returns the type of the components for a compound type, or the
-/// type of an element for a dimension type
-nc_type pfnc_complex_base_type(int ncid, int nc_typeid);
+/// type of an element for a dimension type.
+int pfnc_complex_base_type(int ncid, int nc_typeid, int *base_type_id);
+
+/// Get the base numerical type of a complex variable
+int pfnc_inq_var_complex_base_type(int ncid, int varid, int *nc_typeid);
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double_complex *op);

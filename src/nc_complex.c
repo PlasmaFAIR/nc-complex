@@ -37,15 +37,25 @@ bool pfnc_is_complex(int ncid, int varid) {
   return pfnc_is_complex_type(ncid, varid) || pfnc_has_complex_dimension(ncid, varid);
 }
 
-nc_type pfnc_complex_base_type(int ncid, int nc_typeid) {
-  if (nc_typeid == NC_FLOAT || nc_typeid == NC_DOUBLE) {
-    return nc_typeid;
+int pfnc_complex_base_type(int ncid, int nc_typeid, int *base_type_id) {
+  if (nc_typeid < NC_MAX_ATOMIC_TYPE) {
+    *base_type_id = nc_typeid;
+    return NC_NOERR;
   }
 
-  nc_type real_field_type;
-  nc_inq_compound_field(ncid, nc_typeid, 0, NULL, NULL, &real_field_type, NULL, NULL);
+  // TODO: This should probably handle vlens too
 
-  return real_field_type;
+  return nc_inq_compound_field(ncid, nc_typeid, 0, NULL, NULL, base_type_id, NULL,
+                               NULL);
+}
+
+int pfnc_inq_var_complex_base_type(int ncid, int varid, int *nc_typeid) {
+  nc_type var_type_id;
+  int ierr = nc_inq_vartype(ncid, varid, &var_type_id);
+  if (ierr != NC_NOERR) {
+    return ierr;
+  }
+  return pfnc_complex_base_type(ncid, var_type_id, nc_typeid);
 }
 
 /// Return true if a compound type is compatible with a known convention
