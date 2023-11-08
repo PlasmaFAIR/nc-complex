@@ -43,7 +43,7 @@ auto test_directory() {
 
 struct NetCDFResult {
   int ierr{-1};
-  NetCDFResult(int result) : ierr(result) {}
+  explicit NetCDFResult(int result) : ierr(result) {}
   operator bool() const { return ierr == NC_NOERR; }
 };
 
