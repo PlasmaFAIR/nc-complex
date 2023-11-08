@@ -215,14 +215,13 @@ int pfnc_get_float_complex_typeid(int ncid, nc_type *type_id) {
     return NC_NOERR;
   }
 
-  CHECK(nc_def_compound(ncid, sizeof(float_complex), float_complex_struct_name,
-                        type_id));
+  CHECK(
+      nc_def_compound(ncid, sizeof(float_complex), float_complex_struct_name, type_id));
   CHECK(nc_insert_compound(ncid, *type_id, "r", 0, NC_FLOAT));
   CHECK(nc_insert_compound(ncid, *type_id, "i", sizeof(float), NC_FLOAT));
 
   return NC_NOERR;
 }
-
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const double _Complex *op) {
@@ -305,7 +304,7 @@ int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
 }
 
 int pfnc_put_vara_float_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, const float _Complex *op) {
+                                const size_t *countp, const float _Complex *op) {
   if (!pfnc_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
@@ -317,7 +316,7 @@ int pfnc_put_vara_float_complex(int ncid, int varid, const size_t *startp,
 }
 
 int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, float_complex *ip) {
+                                const size_t *countp, float_complex *ip) {
   if (!pfnc_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
@@ -375,12 +374,12 @@ int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
 }
 
 int pfnc_put_var1_float_complex(int ncid, int varid, const size_t *indexp,
-                                 const float_complex *data) {
+                                const float_complex *data) {
   return pfnc_put_vara_float_complex(ncid, varid, indexp, coord_one, data);
 }
 
 int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
-                                 float_complex *data) {
+                                float_complex *data) {
   return pfnc_get_vara_float_complex(ncid, varid, indexp, coord_one, data);
 }
 
@@ -438,6 +437,7 @@ cleanup:
   }
   return ierr;
 }
+
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip) {
   if (pfnc_is_complex(ncid, varid)) {
