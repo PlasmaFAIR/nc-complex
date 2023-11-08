@@ -384,7 +384,7 @@ TEST_CASE("Write test file") {
   }
 
   SECTION("Check base type of compound type") {
-    REQUIRE(pfnc_base_type_of_compound_complex(ncid, type_id) == NC_DOUBLE);
+    REQUIRE(pfnc_complex_base_type(ncid, type_id) == NC_DOUBLE);
   }
 
   int var_struct_id = 0;
