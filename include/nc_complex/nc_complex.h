@@ -71,21 +71,37 @@ int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
 int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, double_complex *ip);
 
+int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, const ptrdiff_t *stridep,
+                                 const double_complex *op);
+
+int pfnc_get_vars_double_complex(int ncid, int varid, const size_t *startp,
+                                 const size_t *countp, const ptrdiff_t *stridep,
+                                 double_complex *ip);
+
 int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  const double_complex *data);
 int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
                                  double_complex *data);
 
 int pfnc_put_vara_float_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, const float_complex *op);
+                                const size_t *countp, const float_complex *op);
 
 int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, float_complex *ip);
+                                const size_t *countp, float_complex *ip);
+
+int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
+                                const size_t *countp, const ptrdiff_t *stridep,
+                                const float_complex *op);
+
+int pfnc_get_vars_float_complex(int ncid, int varid, const size_t *startp,
+                                const size_t *countp, const ptrdiff_t *stridep,
+                                float_complex *ip);
 
 int pfnc_put_var1_float_complex(int ncid, int varid, const size_t *indexp,
-                                 const float_complex *data);
+                                const float_complex *data);
 int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
-                                 float_complex *data);
+                                float_complex *data);
 
 // Custom shims for lying about dimensional variables
 int pfnc_inq_varndims(int ncid, int varid, int *ndimsp);
@@ -93,6 +109,9 @@ int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp);
 
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip);
+int pfnc_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
+                  const ptrdiff_t *stridep, void *ip);
+
 // TODO: pfnc_libvers
 
 #ifdef __cplusplus
