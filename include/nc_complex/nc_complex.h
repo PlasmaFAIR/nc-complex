@@ -104,8 +104,14 @@ int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
                                 float_complex *data);
 
 // Custom shims for lying about dimensional variables
-int pfnc_inq_varndims(int ncid, int varid, int *ndimsp);
-int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp);
+int pfnc_inq_var(int ncid, int varid, char *name, nc_type *xtypep, int *ndimsp,
+                 int *dimidsp, int *nattsp);
+int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
+  return pfnc_inq_var(ncid, varid, NULL, NULL, ndimsp, NULL, NULL);
+}
+int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
+  return pfnc_inq_var(ncid, varid, NULL, NULL, NULL, dimidsp, NULL);
+}
 
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip);

@@ -504,19 +504,13 @@ int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
   return pfnc_get_vara_float_complex(ncid, varid, indexp, coord_one, data);
 }
 
-int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
-  const int ierr = nc_inq_varndims(ncid, varid, ndimsp);
-  if (ierr != NC_NOERR) {
-    return ierr;
-  }
-  // Pretend that variable has one less dimension than it does
-  if (pfnc_has_complex_dimension(ncid, varid)) {
-    *ndimsp -= 1;
-  }
-  return NC_NOERR;
-}
+int pfnc_inq_var(int ncid, int varid, char *name, nc_type *xtypep, int *ndimsp,
+                 int *dimidsp, int *nattsp) {
 
-int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
+  if (!pfnc_has_complex_dimension(ncid, varid)) {
+    return nc_inq_var(ncid, varid, name, xtypep, ndimsp, dimidsp, nattsp);
+  }
+
   // Tricky bit: if variable has complex dimension, and user used
   // pfnc_inq_varndims, then dimidsp is one smaller than netCDF thinks
   // it should be. So we'll have to allocate our own array of the
@@ -524,24 +518,23 @@ int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
 
   // This buffer will point to either the user's array, or our own one
   int *buffer = dimidsp;
-  bool allocated_internal_buffer = false;
   int numdims = 0;
 
-  if (pfnc_has_complex_dimension(ncid, varid)) {
+  if (dimidsp != NULL) {
     const int ierr = nc_inq_varndims(ncid, varid, &numdims);
     if (ierr != NC_NOERR) {
       return ierr;
     }
     buffer = (int *)malloc(sizeof(int) * (size_t)numdims);
-    allocated_internal_buffer = true;
   }
 
-  int ierr = nc_inq_vardimid(ncid, varid, buffer);
+  int ierr = nc_inq_var(ncid, varid, name, xtypep, &numdims, buffer, nattsp);
+
   if (ierr != NC_NOERR) {
     goto cleanup;
   }
 
-  if (allocated_internal_buffer) {
+  if (dimidsp != NULL) {
     if (numdims <= 0) {
       // This should never happen
       goto cleanup;
@@ -552,10 +545,12 @@ int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
     }
   }
 
-cleanup:
-  if (allocated_internal_buffer) {
-    free(buffer);
+  if (ndimsp != NULL) {
+    *ndimsp = numdims - 1;
   }
+
+cleanup:
+  free(buffer);
   return ierr;
 }
 
