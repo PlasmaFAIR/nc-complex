@@ -459,7 +459,19 @@ cleanup:
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip) {
   if (pfnc_is_complex(ncid, varid)) {
-    return pfnc_get_vara_double_complex(ncid, varid, startp, countp, ip);
+    nc_type base_type;
+    const int ierr = pfnc_inq_var_complex_base_type(ncid, varid, &base_type);
+    if (ierr != NC_NOERR) {
+      return ierr;
+    }
+    switch (base_type) {
+    case NC_DOUBLE:
+      return pfnc_get_vara_double_complex(ncid, varid, startp, countp, ip);
+    case NC_FLOAT:
+      return pfnc_get_vara_float_complex(ncid, varid, startp, countp, ip);
+    default:
+      return NC_EBADTYPE;
+    }
   }
 
   return nc_get_vara(ncid, varid, startp, countp, ip);
