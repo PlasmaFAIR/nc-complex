@@ -33,8 +33,9 @@ bool file_has_float_complex_struct(int ncid, nc_type *typeidp) {
   return (err == NC_NOERR) && (*typeidp > 0);
 }
 
-bool pfnc_is_complex(int ncid, int varid) {
-  return pfnc_is_complex_type(ncid, varid) || pfnc_has_complex_dimension(ncid, varid);
+bool pfnc_var_is_complex(int ncid, int varid) {
+  return pfnc_var_is_complex_type(ncid, varid) ||
+         pfnc_var_has_complex_dimension(ncid, varid);
 }
 
 int pfnc_complex_base_type(int ncid, int nc_typeid, int *base_type_id) {
@@ -152,7 +153,7 @@ bool dimension_is_complex(int ncid, int dim_id) {
 }
 
 /// Return true if a variable uses the dimension-convention
-bool pfnc_has_complex_dimension(int ncid, int nc_varid) {
+bool pfnc_var_has_complex_dimension(int ncid, int nc_varid) {
   int num_dims;
   nc_inq_varndims(ncid, nc_varid, &num_dims);
 
@@ -234,7 +235,7 @@ ptrdiff_t *copy_complex_dim_ptrdiff_t_array(const ptrdiff_t *old_array, int numd
   return new_buffer;
 }
 
-bool pfnc_is_complex_type(int ncid, int varid) {
+bool pfnc_var_is_complex_type(int ncid, int varid) {
   nc_type var_type_id;
   if (nc_inq_vartype(ncid, varid, &var_type_id)) {
     return false;
@@ -289,7 +290,7 @@ int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
 int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const ptrdiff_t *stridep,
                                  const double_complex *op) {
-  if (!pfnc_is_complex(ncid, varid)) {
+  if (!pfnc_var_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
 
@@ -297,7 +298,7 @@ int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
 
   // Check if we can get away without fudging count/start sizes
   if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_has_complex_dimension(ncid, varid)) {
+      !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_put_vars(ncid, varid, startp, countp, stridep, op);
   }
 
@@ -336,7 +337,7 @@ int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
 int pfnc_get_vars_double_complex(int ncid, int varid, const size_t *startp,
                                  const size_t *countp, const ptrdiff_t *stridep,
                                  double_complex *ip) {
-  if (!pfnc_is_complex(ncid, varid)) {
+  if (!pfnc_var_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
 
@@ -344,7 +345,7 @@ int pfnc_get_vars_double_complex(int ncid, int varid, const size_t *startp,
 
   // Check if we can get away without fudging count/start sizes
   if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_has_complex_dimension(ncid, varid)) {
+      !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_get_vars(ncid, varid, startp, countp, stridep, ip);
   }
 
@@ -403,7 +404,7 @@ int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
 int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
                                 const size_t *countp, const ptrdiff_t *stridep,
                                 const float_complex *op) {
-  if (!pfnc_is_complex(ncid, varid)) {
+  if (!pfnc_var_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
 
@@ -411,7 +412,7 @@ int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
 
   // Check if we can get away without fudging count/start sizes
   if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_has_complex_dimension(ncid, varid)) {
+      !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_put_vars(ncid, varid, startp, countp, stridep, op);
   }
 
@@ -450,7 +451,7 @@ int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
 int pfnc_get_vars_float_complex(int ncid, int varid, const size_t *startp,
                                 const size_t *countp, const ptrdiff_t *stridep,
                                 float_complex *ip) {
-  if (!pfnc_is_complex(ncid, varid)) {
+  if (!pfnc_var_is_complex(ncid, varid)) {
     return NC_EBADTYPE;
   }
 
@@ -458,7 +459,7 @@ int pfnc_get_vars_float_complex(int ncid, int varid, const size_t *startp,
 
   // Check if we can get away without fudging count/start sizes
   if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_has_complex_dimension(ncid, varid)) {
+      !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_get_vars(ncid, varid, startp, countp, stridep, ip);
   }
 
@@ -507,7 +508,7 @@ int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
 int pfnc_inq_var(int ncid, int varid, char *name, nc_type *xtypep, int *ndimsp,
                  int *dimidsp, int *nattsp) {
 
-  if (!pfnc_has_complex_dimension(ncid, varid)) {
+  if (!pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_inq_var(ncid, varid, name, xtypep, ndimsp, dimidsp, nattsp);
   }
 
@@ -555,7 +556,7 @@ cleanup:
 }
 
 int pfnc_def_var_chunking(int ncid, int varid, int storage, const size_t *chunksizesp) {
-  if (chunksizesp == NULL || !pfnc_has_complex_dimension(ncid, varid)) {
+  if (chunksizesp == NULL || !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_def_var_chunking(ncid, varid, storage, chunksizesp);
   }
 
@@ -580,7 +581,7 @@ int pfnc_def_var_chunking(int ncid, int varid, int storage, const size_t *chunks
 }
 
 int pfnc_inq_var_chunking(int ncid, int varid, int *storagep, size_t *chunksizesp) {
-  if (chunksizesp == NULL || !pfnc_has_complex_dimension(ncid, varid)) {
+  if (chunksizesp == NULL || !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_inq_var_chunking(ncid, varid, storagep, chunksizesp);
   }
 
@@ -614,7 +615,7 @@ cleanup:
 
 int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
                   void *ip) {
-  if (pfnc_is_complex(ncid, varid)) {
+  if (pfnc_var_is_complex(ncid, varid)) {
     nc_type base_type;
     const int ierr = pfnc_inq_var_complex_base_type(ncid, varid, &base_type);
     if (ierr != NC_NOERR) {
