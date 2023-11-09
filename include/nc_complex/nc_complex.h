@@ -56,6 +56,9 @@ bool pfnc_var_has_complex_dimension(int ncid, int varid);
 int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);
 int pfnc_get_float_complex_typeid(int ncid, nc_type *nc_typeid);
 
+/// Get complex dimension, creating one if it doesn't already exist
+int pfnc_get_complex_dim(int ncid, int *nc_dim);
+
 /// Get the base numerical type of a complex type
 ///
 /// Returns the type of the components for a compound type, or the

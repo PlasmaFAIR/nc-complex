@@ -549,7 +549,13 @@ TEST_CASE("Write complex-dimensioned variable") {
   REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
 
   int ri_dim_id = 0;
-  REQUIRE_NETCDF(nc_def_dim(ncid, "ri", len_ri, &ri_dim_id));
+  REQUIRE_NETCDF(pfnc_get_complex_dim(ncid, &ri_dim_id));
+
+  SECTION("Check getting dimension is idempotent") {
+    int ri_dim_id2 = 0;
+    REQUIRE_NETCDF(pfnc_get_complex_dim(ncid, &ri_dim_id2));
+    REQUIRE(ri_dim_id == ri_dim_id2);
+  }
 
   int var_id = 0;
   const std::array<int, 2> dim_struct_ids{{x_dim_id, ri_dim_id}};

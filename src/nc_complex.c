@@ -21,6 +21,7 @@ static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
 static const char *double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
 static const char *float_complex_struct_name = "_PFNC_FLOAT_COMPLEX_TYPE";
+static const char *complex_dim_name = "complex";
 
 /// Return true if file already has our complex type
 bool file_has_double_complex_struct(int ncid, nc_type *typeidp) {
@@ -141,11 +142,11 @@ bool dimension_is_complex(int ncid, int dim_id) {
 
   // Check against known names of complex dimensions
   // TODO: Generalise
-  if (strncmp(name, "ri", name_length) == 0) {
+  if (strncmp(name, complex_dim_name, name_length) == 0) {
     return true;
   }
 
-  if (strncmp(name, "complex", name_length) == 0) {
+  if (strncmp(name, "ri", name_length) == 0) {
     return true;
   }
 
@@ -275,6 +276,38 @@ int pfnc_get_float_complex_typeid(int ncid, nc_type *type_id) {
   CHECK(nc_insert_compound(ncid, *type_id, "i", sizeof(float), NC_FLOAT));
 
   return NC_NOERR;
+}
+
+int pfnc_get_complex_dim(int ncid, int *nc_dim) {
+  int ierr = NC_NOERR;
+
+  int num_dims;
+  ierr = nc_inq_ndims(ncid, &num_dims);
+  if (ierr != NC_NOERR) {
+    return ierr;
+  }
+
+  int *dim_ids = (int *)malloc((size_t)num_dims * sizeof(int));
+  ierr = nc_inq_dimids(ncid, NULL, dim_ids, true);
+  if (ierr != NC_NOERR) {
+    goto cleanup;
+  }
+
+  // Now we check if any of the dimensions match one of our known
+  // conventions. Do we need to check all of them, or just the
+  // first/last?
+  for (int i = 0; i < num_dims; i++) {
+    if (dimension_is_complex(ncid, dim_ids[i])) {
+      *nc_dim = dim_ids[i];
+      goto cleanup;
+    }
+  }
+
+  ierr = nc_def_dim(ncid, complex_dim_name, 2, nc_dim);
+
+cleanup:
+  free(dim_ids);
+  return ierr;
 }
 
 int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
