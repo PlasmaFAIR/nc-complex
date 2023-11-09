@@ -52,6 +52,9 @@ bool pfnc_var_is_complex_type(int ncid, int varid);
 /// (assumed to be the last dimension)
 bool pfnc_var_has_complex_dimension(int ncid, int varid);
 
+/// Return true if dimension is complex
+bool pfnc_is_complex_dim(int ncid, int dim_id);
+
 /// Create complex datatype if it doesn't already exist
 int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);
 int pfnc_get_float_complex_typeid(int ncid, nc_type *nc_typeid);

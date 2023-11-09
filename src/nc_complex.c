@@ -21,7 +21,13 @@ static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
 static const char *double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
 static const char *float_complex_struct_name = "_PFNC_FLOAT_COMPLEX_TYPE";
-static const char *complex_dim_name = "complex";
+
+#define COMPLEX_DIM_NAME "_pfnc_complex"
+static const char *complex_dim_name = COMPLEX_DIM_NAME;
+
+static const char *known_dim_names[] = {COMPLEX_DIM_NAME, "complex", "ri"};
+static const size_t num_known_dim_names = sizeof(known_dim_names) / sizeof(known_dim_names[0]);
+
 
 /// Return true if file already has our complex type
 bool file_has_double_complex_struct(int ncid, nc_type *typeidp) {
@@ -124,7 +130,7 @@ bool compound_type_is_compatible(int ncid, int nc_typeid) {
 }
 
 /// Return true if a given dimension matches a known convention
-bool dimension_is_complex(int ncid, int dim_id) {
+bool pfnc_is_complex_dim(int ncid, int dim_id) {
   size_t length;
   nc_inq_dimlen(ncid, dim_id, &length);
 
@@ -141,13 +147,10 @@ bool dimension_is_complex(int ncid, int dim_id) {
   const size_t name_length = strlen(name);
 
   // Check against known names of complex dimensions
-  // TODO: Generalise
-  if (strncmp(name, complex_dim_name, name_length) == 0) {
-    return true;
-  }
-
-  if (strncmp(name, "ri", name_length) == 0) {
-    return true;
+  for (size_t i = 0; i < num_known_dim_names; i++) {
+    if (strncmp(name, known_dim_names[i], name_length) == 0) {
+      return true;
+    }
   }
 
   return false;
@@ -165,7 +168,7 @@ bool pfnc_var_has_complex_dimension(int ncid, int nc_varid) {
   // conventions. Do we need to check all of them, or just the
   // first/last?
   for (int i = 0; i < num_dims; i++) {
-    if (dimension_is_complex(ncid, dim_ids[i])) {
+    if (pfnc_is_complex_dim(ncid, dim_ids[i])) {
       free(dim_ids);
       return true;
     }
@@ -297,7 +300,7 @@ int pfnc_get_complex_dim(int ncid, int *nc_dim) {
   // conventions. Do we need to check all of them, or just the
   // first/last?
   for (int i = 0; i < num_dims; i++) {
-    if (dimension_is_complex(ncid, dim_ids[i])) {
+    if (pfnc_is_complex_dim(ncid, dim_ids[i])) {
       *nc_dim = dim_ids[i];
       goto cleanup;
     }

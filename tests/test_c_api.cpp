@@ -548,17 +548,27 @@ TEST_CASE("Write complex-dimensioned variable") {
   int x_dim_id = 0;
   REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
 
-  int ri_dim_id = 0;
-  REQUIRE_NETCDF(pfnc_get_complex_dim(ncid, &ri_dim_id));
+  int complex_dim_id = 0;
+  REQUIRE_NETCDF(pfnc_get_complex_dim(ncid, &complex_dim_id));
 
   SECTION("Check getting dimension is idempotent") {
     int ri_dim_id2 = 0;
     REQUIRE_NETCDF(pfnc_get_complex_dim(ncid, &ri_dim_id2));
-    REQUIRE(ri_dim_id == ri_dim_id2);
+    REQUIRE(complex_dim_id == ri_dim_id2);
+  }
+
+  SECTION("Check other complex dimension names are recognised") {
+    int ri_dim_id = 0;
+    REQUIRE_NETCDF(nc_def_dim(ncid, "ri", 2, &ri_dim_id));
+    REQUIRE(pfnc_is_complex_dim(ncid, ri_dim_id));
+
+    int complex_dim_id2 = 0;
+    REQUIRE_NETCDF(nc_def_dim(ncid, "complex", 2, &complex_dim_id2));
+    REQUIRE(pfnc_is_complex_dim(ncid, complex_dim_id2));
   }
 
   int var_id = 0;
-  const std::array<int, 2> dim_struct_ids{{x_dim_id, ri_dim_id}};
+  const std::array<int, 2> dim_struct_ids{{x_dim_id, complex_dim_id}};
   REQUIRE_NETCDF(
       nc_def_var(ncid, "data_dim", NC_DOUBLE, 2, dim_struct_ids.data(), &var_id));
 
@@ -569,11 +579,12 @@ TEST_CASE("Write complex-dimensioned variable") {
   }
 
   SECTION("Chunking") {
-    constexpr std::array<std::size_t, 1> chunk_sizes {{len_x / 2}};
+    constexpr std::array<std::size_t, 1> chunk_sizes{{len_x / 2}};
     REQUIRE_NETCDF(pfnc_def_var_chunking(ncid, var_id, NC_CHUNKED, chunk_sizes.data()));
 
     std::array<std::size_t, 1> chunk_sizes_out{};
-    REQUIRE_NETCDF(pfnc_inq_var_chunking(ncid, var_id, nullptr, chunk_sizes_out.data()));
+    REQUIRE_NETCDF(
+        pfnc_inq_var_chunking(ncid, var_id, nullptr, chunk_sizes_out.data()));
     REQUIRE(chunk_sizes_out == chunk_sizes);
   }
 
