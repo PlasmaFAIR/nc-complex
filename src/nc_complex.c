@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-assignment-in-if-condition)
 #define CHECK(func)           \
     do {                      \
         int res;              \
@@ -14,6 +15,7 @@
             return res;       \
         }                     \
     } while (0)
+// NOLINTEND(bugprone-assignment-in-if-condition)
 
 // Vector of ones for get/put_var1 functions
 static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
