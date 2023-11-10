@@ -44,7 +44,6 @@ macro(nc_complex_setup_options)
     option(nc_complex_ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
     option(nc_complex_ENABLE_CPPCHECK "Enable cpp-check analysis" OFF)
     option(nc_complex_ENABLE_PCH "Enable precompiled headers" OFF)
-    option(nc_complex_ENABLE_CACHE "Enable ccache" OFF)
   else()
     option(nc_complex_ENABLE_IPO "Enable IPO/LTO" ON)
     option(nc_complex_WARNINGS_AS_ERRORS "Treat Warnings As Errors" ON)
@@ -58,7 +57,6 @@ macro(nc_complex_setup_options)
     option(nc_complex_ENABLE_CLANG_TIDY "Enable clang-tidy" ON)
     option(nc_complex_ENABLE_CPPCHECK "Enable cpp-check analysis" ON)
     option(nc_complex_ENABLE_PCH "Enable precompiled headers" OFF)
-    option(nc_complex_ENABLE_CACHE "Enable ccache" ON)
   endif()
 
   if(NOT PROJECT_IS_TOP_LEVEL)
@@ -154,11 +152,6 @@ macro(nc_complex_local_options)
       <vector>
       <string>
       <utility>)
-  endif()
-
-  if(nc_complex_ENABLE_CACHE)
-    include(cmake/Cache.cmake)
-    nc_complex_enable_cache()
   endif()
 
   include(cmake/StaticAnalyzers.cmake)
