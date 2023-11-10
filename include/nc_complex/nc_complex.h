@@ -5,13 +5,19 @@
 
 #include "nc_complex/nc_complex_export.h"
 
-#ifdef _MSC_VER
 #include <complex.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+#include <complex>
+#endif
+
+#ifdef _MSC_VER
 typedef _Dcomplex double_complex;
 typedef _Fcomplex float_complex;
 #else
 #if defined(__cplusplus) && defined(__clang__)
-#include <complex>
 using double_complex = std::complex<double>;
 using float_complex = std::complex<float>;
 #else
@@ -20,13 +26,8 @@ typedef float _Complex float_complex;
 #endif
 #endif
 
-#include <complex.h>
-#include <stdbool.h>
-#include <stddef.h>
 
 #ifdef __cplusplus
-#include <complex>
-
 NC_COMPLEX_EXPORT inline double_complex* cpp_to_c_complex(std::complex<double>* data) {
     return reinterpret_cast<double_complex*>(data);
 }
@@ -190,12 +191,14 @@ NC_COMPLEX_EXPORT int pfnc_inq_var(
     int* dimidsp,
     int* nattsp
 );
-NC_COMPLEX_EXPORT int pfnc_inq_varndims(int ncid, int varid, int* ndimsp) {
+// NOLINTBEGIN(modernize-use-nullptr)
+NC_COMPLEX_EXPORT inline int pfnc_inq_varndims(int ncid, int varid, int* ndimsp) {
     return pfnc_inq_var(ncid, varid, NULL, NULL, ndimsp, NULL, NULL);
 }
-NC_COMPLEX_EXPORT int pfnc_inq_vardimid(int ncid, int varid, int* dimidsp) {
+NC_COMPLEX_EXPORT inline int pfnc_inq_vardimid(int ncid, int varid, int* dimidsp) {
     return pfnc_inq_var(ncid, varid, NULL, NULL, NULL, dimidsp, NULL);
 }
+// NOLINTEND(modernize-use-nullptr)
 
 NC_COMPLEX_EXPORT int pfnc_def_var_chunking(
     int ncid, int varid, int storage, const size_t* chunksizesp
