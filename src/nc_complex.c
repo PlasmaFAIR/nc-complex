@@ -543,6 +543,65 @@ int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
   return pfnc_get_vara_float_complex(ncid, varid, indexp, coord_one, data);
 }
 
+int pfnc_def_var(int ncid, const char *name, nc_type xtype, int ndims,
+                 const int *dimidsp, int *varidp) {
+
+  // If it's not a complex number, we don't need to do anything
+  if (!(xtype == PFNC_DOUBLE_COMPLEX || xtype == PFNC_DOUBLE_COMPLEX_DIM
+        || xtype == PFNC_FLOAT_COMPLEX || xtype == PFNC_FLOAT_COMPLEX_DIM)) {
+    return nc_def_var(ncid, name, xtype, ndims, dimidsp, varidp);
+  }
+
+  const bool base_is_double
+      = (xtype == PFNC_DOUBLE_COMPLEX || xtype == PFNC_DOUBLE_COMPLEX_DIM);
+
+  // Check the format used by this file. If it's some variation on the
+  // classic model, then we have to use a complex dimension. Also,
+  // NcZarr, for some reason doesn't support compound types (yet?).
+  // I _think_ DAP supports compound types
+  int format = 0;
+  int mode = 0;
+  CHECK(nc_inq_format_extended(ncid, &format, &mode));
+
+  if ((format == NC_FORMAT_CLASSIC || format == NC_FORMAT_NETCDF4_CLASSIC)
+      || (mode == NC_FORMATX_NCZARR)) {
+    xtype = base_is_double ? PFNC_DOUBLE_COMPLEX_DIM : PFNC_FLOAT_COMPLEX_DIM;
+  }
+
+  if (xtype == PFNC_DOUBLE_COMPLEX_DIM || xtype == PFNC_FLOAT_COMPLEX_DIM) {
+    // Using a complex dimension. We need to get the complex dimension
+    // used in this file and append it to the list of dimensions
+    // passed in by the user
+
+    int complex_dim = 0;
+    CHECK(pfnc_get_complex_dim(ncid, &complex_dim));
+
+    int new_dims = ndims + 1;
+    int *dim_ids_buffer = (int *)malloc((size_t)new_dims * sizeof(int));
+    for (size_t i = 0; i < (size_t)ndims; i++) {
+      dim_ids_buffer[i] = dimidsp[i];
+    }
+    dim_ids_buffer[ndims] = complex_dim;
+
+    const nc_type base_type = base_is_double ? NC_DOUBLE : NC_FLOAT;
+
+    const int ierr = nc_def_var(ncid, name, base_type, new_dims, dim_ids_buffer, varidp);
+    free(dim_ids_buffer);
+    return ierr;
+  }
+
+  // Using a complex type. We need to get the complex type used in
+  // this file and pass that as `xtype`
+  nc_type complex_type = 0;
+  if (base_is_double) {
+    CHECK(pfnc_get_double_complex_typeid(ncid, &complex_type));
+  } else {
+    CHECK(pfnc_get_float_complex_typeid(ncid, &complex_type));
+  }
+
+  return nc_def_var(ncid, name, complex_type, ndims, dimidsp, varidp);
+}
+
 int pfnc_inq_var(int ncid, int varid, char *name, nc_type *xtypep, int *ndimsp,
                  int *dimidsp, int *nattsp) {
 

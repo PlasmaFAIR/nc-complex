@@ -568,9 +568,8 @@ TEST_CASE("Write complex-dimensioned variable") {
   }
 
   int var_id = 0;
-  const std::array<int, 2> dim_struct_ids{{x_dim_id, complex_dim_id}};
-  REQUIRE_NETCDF(
-      nc_def_var(ncid, "data_dim", NC_DOUBLE, 2, dim_struct_ids.data(), &var_id));
+  const std::array<int, 2> dim_ids{{x_dim_id, complex_dim_id}};
+  REQUIRE_NETCDF(nc_def_var(ncid, "data_dim", NC_DOUBLE, 2, dim_ids.data(), &var_id));
 
   SECTION("Check base type of complex variable") {
     int base_type_id{};
@@ -609,14 +608,160 @@ TEST_CASE("Write complex-dimensioned variable") {
                                                 to_c_complex(slice_data_in)));
     REQUIRE_NETCDF(nc_sync(ncid));
 
-    std::array<std::complex<double>, len_x> data_struct_out;
+    std::array<std::complex<double>, len_x> data_out;
     REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_id, zeros, nullptr,
-                                                to_c_complex(data_struct_out)));
+                                                to_c_complex(data_out)));
 
     constexpr std::array<std::complex<double>, len_x> expected_sliced_data
         = {{{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
 
-    REQUIRE(data_struct_out == expected_sliced_data);
+    REQUIRE(data_out == expected_sliced_data);
+  }
+
+  SECTION("Reading slice") {
+    constexpr std::array<std::complex<double>, len_x / 2> expected_sliced_data
+        = {{{2., 3.}, {6., 7.}, {10., 11.}}};
+
+    std::array<std::complex<double>, len_x / 2> slice_data_out{};
+    constexpr std::array<std::size_t, 1> starts = {{1}};
+    constexpr std::array<std::size_t, 1> counts = {{len_x / 2}};
+    constexpr std::array<std::ptrdiff_t, 1> strides = {{2}};
+
+    REQUIRE_NETCDF(pfnc_get_vars_double_complex(ncid, var_id, starts.data(),
+                                                counts.data(), strides.data(),
+                                                to_c_complex(slice_data_out)));
+    REQUIRE(slice_data_out == expected_sliced_data);
+  }
+
+  REQUIRE_NETCDF(nc_close(ncid));
+}
+
+TEST_CASE("Write custom-type variable") {
+  const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
+  fs::create_directory(test_dir);
+  const auto full_filename = test_dir / "test_write_custom_type.nc";
+  fs::remove(full_filename);
+
+  int ncid = 0;
+  REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+
+  int x_dim_id = 0;
+  REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
+
+  int var_id = 0;
+  const std::array<int, 1> dim_ids{{x_dim_id}};
+  REQUIRE_NETCDF(
+      pfnc_def_var(ncid, "data", PFNC_DOUBLE_COMPLEX, 1, dim_ids.data(), &var_id));
+
+  SECTION("Check base type of complex variable") {
+    int base_type_id{};
+    REQUIRE_NETCDF(pfnc_inq_var_complex_base_type(ncid, var_id, &base_type_id));
+    REQUIRE(base_type_id == NC_DOUBLE);
+  }
+
+  REQUIRE_NETCDF(nc_put_var(ncid, var_id, double_data.data()));
+
+  SECTION("Reading variable") {
+    std::array<std::complex<double>, len_x> data_out;
+    REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_id, zeros, nullptr,
+                                                to_c_complex(data_out)));
+    REQUIRE(data_out == double_data);
+  }
+
+  SECTION("Writing slice") {
+    constexpr std::array<std::complex<double>, len_x / 2> slice_data_in
+        = {{{-2., -3.}, {-6., -7.}, {-10., -11.}}};
+    constexpr std::array<std::size_t, 1> starts = {{1}};
+    constexpr std::array<std::size_t, 1> counts = {{len_x / 2}};
+    constexpr std::array<std::ptrdiff_t, 1> strides = {{2}};
+
+    REQUIRE_NETCDF(pfnc_put_vars_double_complex(ncid, var_id, starts.data(),
+                                                counts.data(), strides.data(),
+                                                to_c_complex(slice_data_in)));
+    REQUIRE_NETCDF(nc_sync(ncid));
+
+    std::array<std::complex<double>, len_x> data_out;
+    REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_id, zeros, nullptr,
+                                                to_c_complex(data_out)));
+
+    constexpr std::array<std::complex<double>, len_x> expected_sliced_data
+        = {{{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
+
+    REQUIRE(data_out == expected_sliced_data);
+  }
+
+  SECTION("Reading slice") {
+    constexpr std::array<std::complex<double>, len_x / 2> expected_sliced_data
+        = {{{2., 3.}, {6., 7.}, {10., 11.}}};
+
+    std::array<std::complex<double>, len_x / 2> slice_data_out{};
+    constexpr std::array<std::size_t, 1> starts = {{1}};
+    constexpr std::array<std::size_t, 1> counts = {{len_x / 2}};
+    constexpr std::array<std::ptrdiff_t, 1> strides = {{2}};
+
+    REQUIRE_NETCDF(pfnc_get_vars_double_complex(ncid, var_id, starts.data(),
+                                                counts.data(), strides.data(),
+                                                to_c_complex(slice_data_out)));
+    REQUIRE(slice_data_out == expected_sliced_data);
+  }
+
+  REQUIRE_NETCDF(nc_close(ncid));
+}
+
+TEST_CASE("Write custom-type variable (netCDF3)") {
+  const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
+  fs::create_directory(test_dir);
+  const auto full_filename = test_dir / "test_write_custom_type_netcdf3.nc";
+  fs::remove(full_filename);
+
+  int ncid = 0;
+  REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_CLOBBER, &ncid));
+
+  int x_dim_id = 0;
+  REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
+
+  int var_id = 0;
+  const std::array<int, 1> dim_ids{{x_dim_id}};
+  REQUIRE_NETCDF(
+      pfnc_def_var(ncid, "data", PFNC_DOUBLE_COMPLEX, 1, dim_ids.data(), &var_id));
+
+  SECTION("Check base type of complex variable") {
+    int base_type_id{};
+    REQUIRE_NETCDF(pfnc_inq_var_complex_base_type(ncid, var_id, &base_type_id));
+    REQUIRE(base_type_id == NC_DOUBLE);
+  }
+
+  REQUIRE_NETCDF(nc_enddef(ncid));
+
+  REQUIRE_NETCDF(nc_put_var(ncid, var_id, double_data.data()));
+
+  SECTION("Reading variable") {
+    std::array<std::complex<double>, len_x> data_out;
+    REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_id, zeros, nullptr,
+                                                to_c_complex(data_out)));
+    REQUIRE(data_out == double_data);
+  }
+
+  SECTION("Writing slice") {
+    constexpr std::array<std::complex<double>, len_x / 2> slice_data_in
+        = {{{-2., -3.}, {-6., -7.}, {-10., -11.}}};
+    constexpr std::array<std::size_t, 1> starts = {{1}};
+    constexpr std::array<std::size_t, 1> counts = {{len_x / 2}};
+    constexpr std::array<std::ptrdiff_t, 1> strides = {{2}};
+
+    REQUIRE_NETCDF(pfnc_put_vars_double_complex(ncid, var_id, starts.data(),
+                                                counts.data(), strides.data(),
+                                                to_c_complex(slice_data_in)));
+    REQUIRE_NETCDF(nc_sync(ncid));
+
+    std::array<std::complex<double>, len_x> data_out;
+    REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_id, zeros, nullptr,
+                                                to_c_complex(data_out)));
+
+    constexpr std::array<std::complex<double>, len_x> expected_sliced_data
+        = {{{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
+
+    REQUIRE(data_out == expected_sliced_data);
   }
 
   SECTION("Reading slice") {

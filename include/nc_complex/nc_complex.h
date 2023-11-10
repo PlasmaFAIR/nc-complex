@@ -44,6 +44,23 @@ inline std::complex<float> *c_to_cpp_complex(float_complex *data) {
 extern "C" {
 #endif
 
+/// Datatype for float complex, for use with `pfnc_def_var`
+///
+/// Uses complex compound datatype with netCDF4 format, and complex dimension otherwise
+#define PFNC_FLOAT_COMPLEX (NC_FIRSTUSERTYPEID - 4)
+/// Datatype for float complex, for use with `pfnc_def_var`
+///
+/// Always use a complex dimension, regardless of file format
+#define PFNC_FLOAT_COMPLEX_DIM (NC_FIRSTUSERTYPEID - 3)
+/// Datatype for double complex, for use with `pfnc_def_var`
+///
+/// Uses complex compound datatype with netCDF4 format, and complex dimension otherwise
+#define PFNC_DOUBLE_COMPLEX (NC_FIRSTUSERTYPEID - 2)
+/// Datatype for double complex, for use with `pfnc_def_var`
+///
+/// Always use a complex dimension, regardless of file format
+#define PFNC_DOUBLE_COMPLEX_DIM (NC_FIRSTUSERTYPEID - 1)
+
 /// Return true if variable is complex
 bool pfnc_var_is_complex(int ncid, int varid);
 /// Return true if variable is complex and uses a compound datatype
@@ -110,6 +127,12 @@ int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
                                 float_complex *data);
 
 // Custom shims for lying about dimensional variables
+
+/// Extension to `nc_def_var` that also accepts `PFNC_FLOAT_COMPLEX`,
+/// `PFNC_FLOAT_COMPLEX_DIM`, `PFNC_DOUBLE_COMPLEX`, and `PFNC_DOUBLE_COMPLEX_DIM`
+int pfnc_def_var(int ncid, const char *name, nc_type xtype, int ndims,
+                 const int *dimidsp, int *varidp);
+
 int pfnc_inq_var(int ncid, int varid, char *name, nc_type *xtypep, int *ndimsp,
                  int *dimidsp, int *nattsp);
 int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
