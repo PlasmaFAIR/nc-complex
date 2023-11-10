@@ -6,12 +6,12 @@
 #include <cstddef>
 #include <cstdio>
 #include <filesystem>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 
 #include "nc_complex/nc_complex.h"
 
-using namespace std::string_literals;
 namespace fs = std::filesystem;
 
 constexpr int len_x = 6;
@@ -31,7 +31,7 @@ constexpr std::array<std::complex<float>, len_x / 2> float_strided_data = {
     {{2.f, 3.f}, {6.f, 7.f}, {10.f, 11.f}}
 };
 
-constexpr size_t zeros[NC_MAX_VAR_DIMS] = {0};
+constexpr std::array<size_t, NC_MAX_VAR_DIMS> zeros = {0};
 
 #define PFNC_CHECK(func)                                        \
     do {                                                        \
@@ -55,13 +55,16 @@ auto test_directory() {
 }
 
 struct NetCDFResult {
-    int ierr{-1};
     explicit NetCDFResult(int result) : ierr(result) {}
     operator bool() const { return ierr == NC_NOERR; }
+    operator int() const { return ierr; }
+
+private:
+    int ierr{-1};
 };
 
 std::ostream& operator<<(std::ostream& os, NetCDFResult const& value) {
-    os << nc_strerror(value.ierr);
+    os << nc_strerror(value);
     return os;
 }
 
@@ -200,6 +203,8 @@ int create_file(const fs::path& filename) {
 }
 
 TEST_CASE("Read test file") {
+    using namespace std::string_literals;
+
     const auto test_file = test_directory() / "test_read.nc";
 
     if (const auto res = create_file(test_file)) {
@@ -376,7 +381,7 @@ TEST_CASE("Read test file") {
             REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri", &var_ri_id));
             REQUIRE(pfnc_var_is_complex(ncid, var_ri_id));
             REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-                ncid, var_ri_id, zeros, nullptr, to_c_complex(data_ri_out)
+                ncid, var_ri_id, zeros.data(), nullptr, to_c_complex(data_ri_out)
             ));
 
             int var_ri_ndims = 0;
@@ -391,7 +396,11 @@ TEST_CASE("Read test file") {
             REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct", &var_struct_id));
             REQUIRE(pfnc_var_is_complex(ncid, var_struct_id));
             REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-                ncid, var_struct_id, zeros, nullptr, to_c_complex(data_struct_out)
+                ncid,
+                var_struct_id,
+                zeros.data(),
+                nullptr,
+                to_c_complex(data_struct_out)
             ));
             REQUIRE(data_struct_out == double_data);
         }
@@ -404,7 +413,7 @@ TEST_CASE("Read test file") {
             REQUIRE_NETCDF(pfnc_get_vara_double_complex(
                 ncid,
                 var_long_names_id,
-                zeros,
+                zeros.data(),
                 nullptr,
                 to_c_complex(data_long_names_out)
             ));
@@ -417,7 +426,7 @@ TEST_CASE("Read test file") {
             REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri_float", &var_ri_id));
             REQUIRE(pfnc_var_is_complex(ncid, var_ri_id));
             REQUIRE_NETCDF(pfnc_get_vara_float_complex(
-                ncid, var_ri_id, zeros, nullptr, to_c_complex(data_ri_out)
+                ncid, var_ri_id, zeros.data(), nullptr, to_c_complex(data_ri_out)
             ));
 
             int var_ri_ndims = 0;
@@ -432,7 +441,11 @@ TEST_CASE("Read test file") {
             REQUIRE_NETCDF(nc_inq_varid(ncid, "data_struct_float", &var_struct_id));
             REQUIRE(pfnc_var_is_complex(ncid, var_struct_id));
             REQUIRE_NETCDF(pfnc_get_vara_float_complex(
-                ncid, var_struct_id, zeros, nullptr, to_c_complex(data_struct_out)
+                ncid,
+                var_struct_id,
+                zeros.data(),
+                nullptr,
+                to_c_complex(data_struct_out)
             ));
             REQUIRE(data_struct_out == float_data);
         }
@@ -447,7 +460,7 @@ TEST_CASE("Read test file") {
             REQUIRE_NETCDF(pfnc_get_vara_float_complex(
                 ncid,
                 var_long_names_id,
-                zeros,
+                zeros.data(),
                 nullptr,
                 to_c_complex(data_long_names_out)
             ));
@@ -614,7 +627,7 @@ TEST_CASE("Write complex-structure variable") {
     SECTION("Reading structure variable") {
         std::array<std::complex<double>, len_x> data_struct_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_struct_id, zeros, nullptr, to_c_complex(data_struct_out)
+            ncid, var_struct_id, zeros.data(), nullptr, to_c_complex(data_struct_out)
         ));
         REQUIRE(data_struct_out == double_data);
     }
@@ -639,7 +652,7 @@ TEST_CASE("Write complex-structure variable") {
 
         std::array<std::complex<double>, len_x> data_struct_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_struct_id, zeros, nullptr, to_c_complex(data_struct_out)
+            ncid, var_struct_id, zeros.data(), nullptr, to_c_complex(data_struct_out)
         ));
 
         constexpr std::array<std::complex<double>, len_x> expected_sliced_data = {
@@ -732,7 +745,7 @@ TEST_CASE("Write complex-dimensioned variable") {
     SECTION("Reading variable") {
         std::array<std::complex<double>, len_x> data_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_id, zeros, nullptr, to_c_complex(data_out)
+            ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
         ));
         REQUIRE(data_out == double_data);
     }
@@ -757,7 +770,7 @@ TEST_CASE("Write complex-dimensioned variable") {
 
         std::array<std::complex<double>, len_x> data_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_id, zeros, nullptr, to_c_complex(data_out)
+            ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
         ));
 
         constexpr std::array<std::complex<double>, len_x> expected_sliced_data = {
@@ -820,7 +833,7 @@ TEST_CASE("Write custom-type variable") {
     SECTION("Reading variable") {
         std::array<std::complex<double>, len_x> data_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_id, zeros, nullptr, to_c_complex(data_out)
+            ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
         ));
         REQUIRE(data_out == double_data);
     }
@@ -845,7 +858,7 @@ TEST_CASE("Write custom-type variable") {
 
         std::array<std::complex<double>, len_x> data_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_id, zeros, nullptr, to_c_complex(data_out)
+            ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
         ));
 
         constexpr std::array<std::complex<double>, len_x> expected_sliced_data = {
@@ -910,7 +923,7 @@ TEST_CASE("Write custom-type variable (netCDF3)") {
     SECTION("Reading variable") {
         std::array<std::complex<double>, len_x> data_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_id, zeros, nullptr, to_c_complex(data_out)
+            ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
         ));
         REQUIRE(data_out == double_data);
     }
@@ -935,7 +948,7 @@ TEST_CASE("Write custom-type variable (netCDF3)") {
 
         std::array<std::complex<double>, len_x> data_out;
         REQUIRE_NETCDF(pfnc_get_vara_double_complex(
-            ncid, var_id, zeros, nullptr, to_c_complex(data_out)
+            ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
         ));
 
         constexpr std::array<std::complex<double>, len_x> expected_sliced_data = {

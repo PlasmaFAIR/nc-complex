@@ -2,7 +2,7 @@
 # Taken from https://github.com/justinchuby/clang-format-black/tree/main
 ---
 Language:        Cpp
-AccessModifierOffset: -2  # MARK: Adjustable
+AccessModifierOffset: -4  # MARK: Adjustable
 AlignAfterOpenBracket: BlockIndent
 AlignArrayOfStructures: None  # MARK: Adjustable
 AlignConsecutiveAssignments:

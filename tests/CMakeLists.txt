@@ -26,6 +26,7 @@ target_link_libraries(test_c_api
   plasmafair::nc_complex
   Catch2::Catch2WithMain
 )
+target_compile_features(test_c_api PUBLIC cxx_std_17)
 
 catch_discover_tests(
   test_c_api
