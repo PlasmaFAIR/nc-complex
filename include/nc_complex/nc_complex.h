@@ -27,20 +27,20 @@ typedef float _Complex float_complex;
 #ifdef __cplusplus
 #include <complex>
 
-NC_COMPLEX_EXPORT inline double_complex *cpp_to_c_complex(std::complex<double> *data) {
-  return reinterpret_cast<double_complex *>(data);
+NC_COMPLEX_EXPORT inline double_complex* cpp_to_c_complex(std::complex<double>* data) {
+    return reinterpret_cast<double_complex*>(data);
 }
 
-NC_COMPLEX_EXPORT inline std::complex<double> *c_to_cpp_complex(double_complex *data) {
-  return reinterpret_cast<std::complex<double> *>(data);
+NC_COMPLEX_EXPORT inline std::complex<double>* c_to_cpp_complex(double_complex* data) {
+    return reinterpret_cast<std::complex<double>*>(data);
 }
 
-NC_COMPLEX_EXPORT inline float_complex *cpp_to_c_complex(std::complex<float> *data) {
-  return reinterpret_cast<float_complex *>(data);
+NC_COMPLEX_EXPORT inline float_complex* cpp_to_c_complex(std::complex<float>* data) {
+    return reinterpret_cast<float_complex*>(data);
 }
 
-NC_COMPLEX_EXPORT inline std::complex<float> *c_to_cpp_complex(float_complex *data) {
-  return reinterpret_cast<std::complex<float> *>(data);
+NC_COMPLEX_EXPORT inline std::complex<float>* c_to_cpp_complex(float_complex* data) {
+    return reinterpret_cast<std::complex<float>*>(data);
 }
 
 extern "C" {
@@ -75,82 +75,146 @@ NC_COMPLEX_EXPORT bool pfnc_var_has_complex_dimension(int ncid, int varid);
 NC_COMPLEX_EXPORT bool pfnc_is_complex_dim(int ncid, int dim_id);
 
 /// Create complex datatype if it doesn't already exist
-NC_COMPLEX_EXPORT int pfnc_get_double_complex_typeid(int ncid, nc_type *nc_typeid);
-NC_COMPLEX_EXPORT int pfnc_get_float_complex_typeid(int ncid, nc_type *nc_typeid);
+NC_COMPLEX_EXPORT int pfnc_get_double_complex_typeid(int ncid, nc_type* nc_typeid);
+NC_COMPLEX_EXPORT int pfnc_get_float_complex_typeid(int ncid, nc_type* nc_typeid);
 
 /// Get complex dimension, creating one if it doesn't already exist
-NC_COMPLEX_EXPORT int pfnc_get_complex_dim(int ncid, int *nc_dim);
+NC_COMPLEX_EXPORT int pfnc_get_complex_dim(int ncid, int* nc_dim);
 
 /// Get the base numerical type of a complex type
 ///
 /// Returns the type of the components for a compound type, or the
 /// type of an element for a dimension type.
-NC_COMPLEX_EXPORT int pfnc_complex_base_type(int ncid, int nc_typeid, int *base_type_id);
+NC_COMPLEX_EXPORT int pfnc_complex_base_type(
+    int ncid, int nc_typeid, int* base_type_id
+);
 
 /// Get the base numerical type of a complex variable
-NC_COMPLEX_EXPORT int pfnc_inq_var_complex_base_type(int ncid, int varid, int *nc_typeid);
+NC_COMPLEX_EXPORT int pfnc_inq_var_complex_base_type(
+    int ncid, int varid, int* nc_typeid
+);
 
-NC_COMPLEX_EXPORT int pfnc_put_vara_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, const double_complex *op);
+NC_COMPLEX_EXPORT int pfnc_put_vara_double_complex(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const double_complex* op
+);
 
-NC_COMPLEX_EXPORT int pfnc_get_vara_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, double_complex *ip);
+NC_COMPLEX_EXPORT int pfnc_get_vara_double_complex(
+    int ncid, int varid, const size_t* startp, const size_t* countp, double_complex* ip
+);
 
-NC_COMPLEX_EXPORT int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, const ptrdiff_t *stridep,
-                                 const double_complex *op);
+NC_COMPLEX_EXPORT int pfnc_put_vars_double_complex(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    const double_complex* op
+);
 
-NC_COMPLEX_EXPORT int pfnc_get_vars_double_complex(int ncid, int varid, const size_t *startp,
-                                 const size_t *countp, const ptrdiff_t *stridep,
-                                 double_complex *ip);
+NC_COMPLEX_EXPORT int pfnc_get_vars_double_complex(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    double_complex* ip
+);
 
-NC_COMPLEX_EXPORT int pfnc_put_var1_double_complex(int ncid, int varid, const size_t *indexp,
-                                 const double_complex *data);
-NC_COMPLEX_EXPORT int pfnc_get_var1_double_complex(int ncid, int varid, const size_t *indexp,
-                                 double_complex *data);
+NC_COMPLEX_EXPORT int pfnc_put_var1_double_complex(
+    int ncid, int varid, const size_t* indexp, const double_complex* data
+);
+NC_COMPLEX_EXPORT int pfnc_get_var1_double_complex(
+    int ncid, int varid, const size_t* indexp, double_complex* data
+);
 
-NC_COMPLEX_EXPORT int pfnc_put_vara_float_complex(int ncid, int varid, const size_t *startp,
-                                const size_t *countp, const float_complex *op);
+NC_COMPLEX_EXPORT int pfnc_put_vara_float_complex(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const float_complex* op
+);
 
-NC_COMPLEX_EXPORT int pfnc_get_vara_float_complex(int ncid, int varid, const size_t *startp,
-                                const size_t *countp, float_complex *ip);
+NC_COMPLEX_EXPORT int pfnc_get_vara_float_complex(
+    int ncid, int varid, const size_t* startp, const size_t* countp, float_complex* ip
+);
 
-NC_COMPLEX_EXPORT int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
-                                const size_t *countp, const ptrdiff_t *stridep,
-                                const float_complex *op);
+NC_COMPLEX_EXPORT int pfnc_put_vars_float_complex(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    const float_complex* op
+);
 
-NC_COMPLEX_EXPORT int pfnc_get_vars_float_complex(int ncid, int varid, const size_t *startp,
-                                const size_t *countp, const ptrdiff_t *stridep,
-                                float_complex *ip);
+NC_COMPLEX_EXPORT int pfnc_get_vars_float_complex(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    float_complex* ip
+);
 
-NC_COMPLEX_EXPORT int pfnc_put_var1_float_complex(int ncid, int varid, const size_t *indexp,
-                                const float_complex *data);
-NC_COMPLEX_EXPORT int pfnc_get_var1_float_complex(int ncid, int varid, const size_t *indexp,
-                                float_complex *data);
+NC_COMPLEX_EXPORT int pfnc_put_var1_float_complex(
+    int ncid, int varid, const size_t* indexp, const float_complex* data
+);
+NC_COMPLEX_EXPORT int pfnc_get_var1_float_complex(
+    int ncid, int varid, const size_t* indexp, float_complex* data
+);
 
 // Custom shims for lying about dimensional variables
 
 /// Extension to `nc_def_var` that also accepts `PFNC_FLOAT_COMPLEX`,
 /// `PFNC_FLOAT_COMPLEX_DIM`, `PFNC_DOUBLE_COMPLEX`, and `PFNC_DOUBLE_COMPLEX_DIM`
-NC_COMPLEX_EXPORT int pfnc_def_var(int ncid, const char *name, nc_type xtype, int ndims,
-                 const int *dimidsp, int *varidp);
+NC_COMPLEX_EXPORT int pfnc_def_var(
+    int ncid,
+    const char* name,
+    nc_type xtype,
+    int ndims,
+    const int* dimidsp,
+    int* varidp
+);
 
-NC_COMPLEX_EXPORT int pfnc_inq_var(int ncid, int varid, char *name, nc_type *xtypep, int *ndimsp,
-                 int *dimidsp, int *nattsp);
-NC_COMPLEX_EXPORT int pfnc_inq_varndims(int ncid, int varid, int *ndimsp) {
-  return pfnc_inq_var(ncid, varid, NULL, NULL, ndimsp, NULL, NULL);
+NC_COMPLEX_EXPORT int pfnc_inq_var(
+    int ncid,
+    int varid,
+    char* name,
+    nc_type* xtypep,
+    int* ndimsp,
+    int* dimidsp,
+    int* nattsp
+);
+NC_COMPLEX_EXPORT int pfnc_inq_varndims(int ncid, int varid, int* ndimsp) {
+    return pfnc_inq_var(ncid, varid, NULL, NULL, ndimsp, NULL, NULL);
 }
-NC_COMPLEX_EXPORT int pfnc_inq_vardimid(int ncid, int varid, int *dimidsp) {
-  return pfnc_inq_var(ncid, varid, NULL, NULL, NULL, dimidsp, NULL);
+NC_COMPLEX_EXPORT int pfnc_inq_vardimid(int ncid, int varid, int* dimidsp) {
+    return pfnc_inq_var(ncid, varid, NULL, NULL, NULL, dimidsp, NULL);
 }
 
-NC_COMPLEX_EXPORT int pfnc_def_var_chunking(int ncid, int varid, int storage, const size_t *chunksizesp);
-NC_COMPLEX_EXPORT int pfnc_inq_var_chunking(int ncid, int varid, int *storagep, size_t *chunksizesp);
+NC_COMPLEX_EXPORT int pfnc_def_var_chunking(
+    int ncid, int varid, int storage, const size_t* chunksizesp
+);
+NC_COMPLEX_EXPORT int pfnc_inq_var_chunking(
+    int ncid, int varid, int* storagep, size_t* chunksizesp
+);
 
-NC_COMPLEX_EXPORT int pfnc_get_vara(int ncid, int varid, const size_t *startp, const size_t *countp,
-                  void *ip);
-NC_COMPLEX_EXPORT int pfnc_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
-                  const ptrdiff_t *stridep, void *ip);
+NC_COMPLEX_EXPORT int pfnc_get_vara(
+    int ncid, int varid, const size_t* startp, const size_t* countp, void* ip
+);
+NC_COMPLEX_EXPORT int pfnc_get_vars(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    void* ip
+);
 
 // TODO: pfnc_libvers
 
