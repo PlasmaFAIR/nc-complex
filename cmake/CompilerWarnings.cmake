@@ -101,6 +101,13 @@ function(
 
   # use the same warning flags for C
   set(PROJECT_WARNINGS_C "${PROJECT_WARNINGS_CXX}")
+  # Remove some invalid warnings for C
+  list(REMOVE_ITEM PROJECT_WARNINGS_C
+    -Wnon-virtual-dtor
+    -Wold-style-cast
+    -Woverloaded-virtual
+    -Wuseless-cast
+  )
 
   set(PROJECT_WARNINGS_CUDA "${CUDA_WARNINGS}")
 
