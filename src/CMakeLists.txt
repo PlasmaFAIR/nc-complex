@@ -32,3 +32,19 @@ generate_export_header(nc_complex
 if (NOT BUILD_SHARED_LIBS)
   target_compile_definitions(nc_complex PUBLIC NC_COMPLEX_STATIC_DEFINE)
 endif()
+
+# This target gets rerun every build, ensuring that the git version
+# information is always up-to-date. The file it generates only gets
+# touched if its contents are different, which means rebuilds aren't
+# triggered unnecessarily
+add_custom_target(
+  version_header
+  ${CMAKE_COMMAND} -D SRC="${CMAKE_CURRENT_LIST_DIR}/nc_complex_version.h.in"
+                   -D DST="${PROJECT_BINARY_DIR}/include/nc_complex_version.h"
+                   -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
+                   -D GIT_DIR=".."
+                   -D NC_COMPLEX_GIT_DEBUG="${NC_COMPLEX_GIT_DEBUG}"
+                   -P "${PROJECT_SOURCE_DIR}/cmake/get_git_version.cmake"
+  COMMENT "Generating git version information"
+  )
+add_dependencies(nc_complex version_header)

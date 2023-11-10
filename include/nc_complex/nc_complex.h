@@ -219,7 +219,7 @@ NC_COMPLEX_EXPORT int pfnc_get_vars(
     void* ip
 );
 
-// TODO: pfnc_libvers
+NC_COMPLEX_EXPORT const char* pfnc_inq_libvers(void);
 
 #ifdef __cplusplus
 }

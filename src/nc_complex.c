@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "nc_complex_version.h"
+
 // NOLINTBEGIN(bugprone-assignment-in-if-condition)
 #define CHECK(func)           \
     do {                      \
@@ -29,6 +31,12 @@ static const char* complex_dim_name = COMPLEX_DIM_NAME;
 static const char* known_dim_names[] = {COMPLEX_DIM_NAME, "complex", "ri"};
 static const size_t num_known_dim_names =
     sizeof(known_dim_names) / sizeof(known_dim_names[0]);
+
+static const char pfnc_libvers[] = NC_COMPLEX_GIT_VERSION;
+
+const char* pfnc_inq_libvers(void) {
+    return pfnc_libvers;
+}
 
 /// Return true if file already has our complex type
 bool file_has_double_complex_struct(int ncid, nc_type* typeidp) {
