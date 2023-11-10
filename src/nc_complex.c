@@ -63,10 +63,7 @@ int pfnc_complex_base_type(int ncid, int nc_typeid, int* base_type_id) {
 
 int pfnc_inq_var_complex_base_type(int ncid, int varid, int* nc_typeid) {
     nc_type var_type_id;
-    int ierr = nc_inq_vartype(ncid, varid, &var_type_id);
-    if (ierr != NC_NOERR) {
-        return ierr;
-    }
+    CHECK(nc_inq_vartype(ncid, varid, &var_type_id));
     return pfnc_complex_base_type(ncid, var_type_id, nc_typeid);
 }
 
@@ -278,16 +275,11 @@ int pfnc_get_float_complex_typeid(int ncid, nc_type* type_id) {
 }
 
 int pfnc_get_complex_dim(int ncid, int* nc_dim) {
-    int ierr = NC_NOERR;
-
     int num_dims;
-    ierr = nc_inq_ndims(ncid, &num_dims);
-    if (ierr != NC_NOERR) {
-        return ierr;
-    }
+    CHECK(nc_inq_ndims(ncid, &num_dims));
 
     int* dim_ids = (int*)malloc((size_t)num_dims * sizeof(int));
-    ierr = nc_inq_dimids(ncid, NULL, dim_ids, true);
+    int ierr = nc_inq_dimids(ncid, NULL, dim_ids, true);
     if (ierr != NC_NOERR) {
         goto cleanup;
     }
@@ -349,12 +341,7 @@ int pfnc_put_vars_double_complex(
     // it doesn't, so now we need start/count arrays of the real size
 
     int numdims = 0;
-    {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
-    }
+    CHECK(nc_inq_varndims(ncid, varid, &numdims));
 
     // Copy start/count buffers, appending an extra element for the
     // complex dimension. This dimension starts at 0 and has 2 elements
@@ -401,12 +388,7 @@ int pfnc_get_vars_double_complex(
     // it doesn't, so now we need start/count arrays of the real size
 
     int numdims = 0;
-    {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
-    }
+    CHECK(nc_inq_varndims(ncid, varid, &numdims));
 
     // Copy start/count buffers, appending an extra element for the
     // complex dimension. This dimension starts at 0 and has 2 elements
@@ -481,12 +463,7 @@ int pfnc_put_vars_float_complex(
     // it doesn't, so now we need start/count arrays of the real size
 
     int numdims = 0;
-    {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
-    }
+    CHECK(nc_inq_varndims(ncid, varid, &numdims));
 
     // Copy start/count buffers, appending an extra element for the
     // complex dimension. This dimension starts at 0 and has 2 elements
@@ -533,12 +510,7 @@ int pfnc_get_vars_float_complex(
     // it doesn't, so now we need start/count arrays of the real size
 
     int numdims = 0;
-    {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
-    }
+    CHECK(nc_inq_varndims(ncid, varid, &numdims));
 
     // Copy start/count buffers, appending an extra element for the
     // complex dimension. This dimension starts at 0 and has 2 elements
@@ -661,10 +633,7 @@ int pfnc_inq_var(
     int numdims = 0;
 
     if (dimidsp != NULL) {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
+        CHECK(nc_inq_varndims(ncid, varid, &numdims));
         buffer = (int*)malloc(sizeof(int) * (size_t)numdims);
     }
 
@@ -703,12 +672,7 @@ int pfnc_def_var_chunking(int ncid, int varid, int storage, const size_t* chunks
     // it doesn't, so now we need start/count arrays of the real size
 
     int numdims = 0;
-    {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
-    }
+    CHECK(nc_inq_varndims(ncid, varid, &numdims));
 
     // Copy chunksize buffer, appending an extra element for the
     // complex dimension
@@ -725,12 +689,8 @@ int pfnc_inq_var_chunking(int ncid, int varid, int* storagep, size_t* chunksizes
     }
 
     int numdims = 0;
-    {
-        const int ierr = nc_inq_varndims(ncid, varid, &numdims);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
-    }
+
+    CHECK(nc_inq_varndims(ncid, varid, &numdims));
 
     // Copy chunksize buffer, appending an extra element for the
     // complex dimension
@@ -757,10 +717,7 @@ int pfnc_get_vara(
 ) {
     if (pfnc_var_is_complex(ncid, varid)) {
         nc_type base_type;
-        const int ierr = pfnc_inq_var_complex_base_type(ncid, varid, &base_type);
-        if (ierr != NC_NOERR) {
-            return ierr;
-        }
+        CHECK(pfnc_inq_var_complex_base_type(ncid, varid, &base_type));
         switch (base_type) {
             case NC_DOUBLE:
                 return pfnc_get_vara_double_complex(ncid, varid, startp, countp, ip);
