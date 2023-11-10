@@ -17,15 +17,15 @@ namespace fs = std::filesystem;
 constexpr int len_x = 6;
 constexpr int len_ri = 2;
 
-constexpr std::array<std::complex<double>, len_x> double_data = {
-    {{0., 1.}, {2., 3.}, {4., 5.}, {6., 7.}, {8., 9.}, {10., 11.}}};
-constexpr std::array<std::complex<float>, len_x> float_data = {
-    {{0.f, 1.f}, {2.f, 3.f}, {4.f, 5.f}, {6.f, 7.f}, {8.f, 9.f}, {10.f, 11.f}}};
+constexpr std::array<std::complex<double>, len_x> double_data
+    = {{{0., 1.}, {2., 3.}, {4., 5.}, {6., 7.}, {8., 9.}, {10., 11.}}};
+constexpr std::array<std::complex<float>, len_x> float_data
+    = {{{0.f, 1.f}, {2.f, 3.f}, {4.f, 5.f}, {6.f, 7.f}, {8.f, 9.f}, {10.f, 11.f}}};
 
-constexpr std::array<std::complex<double>, len_x / 2> double_strided_data = {
-    {{2., 3.}, {6., 7.}, {10., 11.}}};
-constexpr std::array<std::complex<float>, len_x / 2> float_strided_data = {
-    {{2.f, 3.f}, {6.f, 7.f}, {10.f, 11.f}}};
+constexpr std::array<std::complex<double>, len_x / 2> double_strided_data
+    = {{{2., 3.}, {6., 7.}, {10., 11.}}};
+constexpr std::array<std::complex<float>, len_x / 2> float_strided_data
+    = {{{2.f, 3.f}, {6.f, 7.f}, {10.f, 11.f}}};
 
 constexpr size_t zeros[NC_MAX_VAR_DIMS] = {0};
 
@@ -497,8 +497,8 @@ TEST_CASE("Write complex-structure variable") {
   }
 
   SECTION("Writing slice") {
-    constexpr std::array<std::complex<double>, len_x / 2> slice_data_in = {
-        {{-2., -3.}, {-6., -7.}, {-10., -11.}}};
+    constexpr std::array<std::complex<double>, len_x / 2> slice_data_in
+        = {{{-2., -3.}, {-6., -7.}, {-10., -11.}}};
     constexpr std::array<std::size_t, 1> starts = {{1}};
     constexpr std::array<std::size_t, 1> counts = {{len_x / 2}};
     constexpr std::array<std::ptrdiff_t, 1> strides = {{2}};
@@ -512,15 +512,15 @@ TEST_CASE("Write complex-structure variable") {
     REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_struct_id, zeros, nullptr,
                                                 to_c_complex(data_struct_out)));
 
-    constexpr std::array<std::complex<double>, len_x> expected_sliced_data = {
-        {{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
+    constexpr std::array<std::complex<double>, len_x> expected_sliced_data
+        = {{{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
 
     REQUIRE(data_struct_out == expected_sliced_data);
   }
 
   SECTION("Reading slice") {
-    constexpr std::array<std::complex<double>, len_x / 2> expected_sliced_data = {
-        {{2., 3.}, {6., 7.}, {10., 11.}}};
+    constexpr std::array<std::complex<double>, len_x / 2> expected_sliced_data
+        = {{{2., 3.}, {6., 7.}, {10., 11.}}};
 
     std::array<std::complex<double>, len_x / 2> slice_data_out{};
     constexpr std::array<std::size_t, 1> starts = {{1}};
@@ -598,8 +598,8 @@ TEST_CASE("Write complex-dimensioned variable") {
   }
 
   SECTION("Writing slice") {
-    constexpr std::array<std::complex<double>, len_x / 2> slice_data_in = {
-        {{-2., -3.}, {-6., -7.}, {-10., -11.}}};
+    constexpr std::array<std::complex<double>, len_x / 2> slice_data_in
+        = {{{-2., -3.}, {-6., -7.}, {-10., -11.}}};
     constexpr std::array<std::size_t, 1> starts = {{1}};
     constexpr std::array<std::size_t, 1> counts = {{len_x / 2}};
     constexpr std::array<std::ptrdiff_t, 1> strides = {{2}};
@@ -613,15 +613,15 @@ TEST_CASE("Write complex-dimensioned variable") {
     REQUIRE_NETCDF(pfnc_get_vara_double_complex(ncid, var_id, zeros, nullptr,
                                                 to_c_complex(data_struct_out)));
 
-    constexpr std::array<std::complex<double>, len_x> expected_sliced_data = {
-        {{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
+    constexpr std::array<std::complex<double>, len_x> expected_sliced_data
+        = {{{0., 1.}, {-2., -3.}, {4., 5.}, {-6., -7.}, {8., 9.}, {-10., -11.}}};
 
     REQUIRE(data_struct_out == expected_sliced_data);
   }
 
   SECTION("Reading slice") {
-    constexpr std::array<std::complex<double>, len_x / 2> expected_sliced_data = {
-        {{2., 3.}, {6., 7.}, {10., 11.}}};
+    constexpr std::array<std::complex<double>, len_x / 2> expected_sliced_data
+        = {{{2., 3.}, {6., 7.}, {10., 11.}}};
 
     std::array<std::complex<double>, len_x / 2> slice_data_out{};
     constexpr std::array<std::size_t, 1> starts = {{1}};

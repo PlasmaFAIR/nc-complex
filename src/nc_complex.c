@@ -26,13 +26,15 @@ static const char *float_complex_struct_name = "_PFNC_FLOAT_COMPLEX_TYPE";
 static const char *complex_dim_name = COMPLEX_DIM_NAME;
 
 static const char *known_dim_names[] = {COMPLEX_DIM_NAME, "complex", "ri"};
-static const size_t num_known_dim_names = sizeof(known_dim_names) / sizeof(known_dim_names[0]);
-
+static const size_t num_known_dim_names
+    = sizeof(known_dim_names) / sizeof(known_dim_names[0]);
 
 /// Return true if file already has our complex type
 bool file_has_double_complex_struct(int ncid, nc_type *typeidp) {
   const int err = nc_inq_typeid(ncid, double_complex_struct_name, typeidp);
   return (err == NC_NOERR) && (*typeidp > 0);
+
+  // TODO: iterate over other types and check if they fit
 }
 
 bool file_has_float_complex_struct(int ncid, nc_type *typeidp) {
@@ -41,8 +43,8 @@ bool file_has_float_complex_struct(int ncid, nc_type *typeidp) {
 }
 
 bool pfnc_var_is_complex(int ncid, int varid) {
-  return pfnc_var_is_complex_type(ncid, varid) ||
-         pfnc_var_has_complex_dimension(ncid, varid);
+  return pfnc_var_is_complex_type(ncid, varid)
+         || pfnc_var_has_complex_dimension(ncid, varid);
 }
 
 int pfnc_complex_base_type(int ncid, int nc_typeid, int *base_type_id) {
@@ -333,8 +335,8 @@ int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
   // TODO: handle converting different float sizes
 
   // Check if we can get away without fudging count/start sizes
-  if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_var_has_complex_dimension(ncid, varid)) {
+  if (((startp == NULL) && (countp == NULL) && (stridep == NULL))
+      || !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_put_vars(ncid, varid, startp, countp, stridep, op);
   }
 
@@ -355,8 +357,8 @@ int pfnc_put_vars_double_complex(int ncid, int varid, const size_t *startp,
   size_t *count_buffer = copy_complex_dim_size_t_array(countp, numdims, 2);
   ptrdiff_t *stride_buffer = copy_complex_dim_ptrdiff_t_array(stridep, numdims, 1);
 
-  const int ierr =
-      nc_put_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, op);
+  const int ierr
+      = nc_put_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, op);
 
   if (start_buffer != NULL) {
     free(start_buffer);
@@ -380,8 +382,8 @@ int pfnc_get_vars_double_complex(int ncid, int varid, const size_t *startp,
   // TODO: handle converting different float sizes
 
   // Check if we can get away without fudging count/start sizes
-  if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_var_has_complex_dimension(ncid, varid)) {
+  if (((startp == NULL) && (countp == NULL) && (stridep == NULL))
+      || !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_get_vars(ncid, varid, startp, countp, stridep, ip);
   }
 
@@ -402,8 +404,8 @@ int pfnc_get_vars_double_complex(int ncid, int varid, const size_t *startp,
   size_t *count_buffer = copy_complex_dim_size_t_array(countp, numdims, 2);
   ptrdiff_t *stride_buffer = copy_complex_dim_ptrdiff_t_array(stridep, numdims, 1);
 
-  const int ierr =
-      nc_get_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, ip);
+  const int ierr
+      = nc_get_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, ip);
 
   if (start_buffer != NULL) {
     free(start_buffer);
@@ -447,8 +449,8 @@ int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
   // TODO: handle converting different float sizes
 
   // Check if we can get away without fudging count/start sizes
-  if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_var_has_complex_dimension(ncid, varid)) {
+  if (((startp == NULL) && (countp == NULL) && (stridep == NULL))
+      || !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_put_vars(ncid, varid, startp, countp, stridep, op);
   }
 
@@ -469,8 +471,8 @@ int pfnc_put_vars_float_complex(int ncid, int varid, const size_t *startp,
   size_t *count_buffer = copy_complex_dim_size_t_array(countp, numdims, 2);
   ptrdiff_t *stride_buffer = copy_complex_dim_ptrdiff_t_array(stridep, numdims, 1);
 
-  const int ierr =
-      nc_put_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, op);
+  const int ierr
+      = nc_put_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, op);
 
   if (start_buffer != NULL) {
     free(start_buffer);
@@ -494,8 +496,8 @@ int pfnc_get_vars_float_complex(int ncid, int varid, const size_t *startp,
   // TODO: handle converting different float sizes
 
   // Check if we can get away without fudging count/start sizes
-  if (((startp == NULL) && (countp == NULL) && (stridep == NULL)) ||
-      !pfnc_var_has_complex_dimension(ncid, varid)) {
+  if (((startp == NULL) && (countp == NULL) && (stridep == NULL))
+      || !pfnc_var_has_complex_dimension(ncid, varid)) {
     return nc_get_vars(ncid, varid, startp, countp, stridep, ip);
   }
 
@@ -516,8 +518,8 @@ int pfnc_get_vars_float_complex(int ncid, int varid, const size_t *startp,
   size_t *count_buffer = copy_complex_dim_size_t_array(countp, numdims, 2);
   ptrdiff_t *stride_buffer = copy_complex_dim_ptrdiff_t_array(stridep, numdims, 1);
 
-  const int ierr =
-      nc_get_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, ip);
+  const int ierr
+      = nc_get_vars(ncid, varid, start_buffer, count_buffer, stride_buffer, ip);
 
   if (start_buffer != NULL) {
     free(start_buffer);
