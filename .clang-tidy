@@ -1,0 +1,12 @@
+---
+# Checks needs to be single string for clang-tidy < 17
+Checks: 'bugprone-*,clang-analyzer-*,clang-diagnostic-*,misc-*,performance-*,readability-*,-readability-identifier-length,-bugprone-easily-swappable-parameters,-readability-magic-numbers,-readability-function-cognitive-complexity,-readability-uppercase-literal-suffix,-readability-avoid-unconditional-preprocessor-if,-misc-include-cleaner'
+WarningsAsErrors: ''
+HeaderFilterRegex: '\.h$'
+AnalyzeTemporaryDtors: false
+FormatStyle:     file
+ExtraArgs: [
+  '-Wno-unknown-warning-option',
+  '-Wno-ignored-optimization-argument',
+]
+---
