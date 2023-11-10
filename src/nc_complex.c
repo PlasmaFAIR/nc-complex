@@ -185,21 +185,8 @@ bool pfnc_var_has_complex_dimension(int ncid, int nc_varid) {
 bool is_compound_type(int ncid, int type_id) {
     // There appears to be no API for detecting whether a type ID is a
     // primitive type, so we have to check ourselves
-    switch (type_id) {
-        case NC_NAT:
-        case NC_BYTE:
-        case NC_CHAR:
-        case NC_SHORT:
-        case NC_INT:
-        case NC_FLOAT:
-        case NC_DOUBLE:
-        case NC_UBYTE:
-        case NC_USHORT:
-        case NC_UINT:
-        case NC_INT64:
-        case NC_UINT64:
-        case NC_STRING:
-            return false;
+    if (type_id <= NC_MAX_ATOMIC_TYPE) {
+        return false;
     }
 
     int class_type;
