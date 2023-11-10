@@ -57,6 +57,7 @@ macro(nc_complex_setup_options)
     option(nc_complex_ENABLE_CLANG_TIDY "Enable clang-tidy" ON)
     option(nc_complex_ENABLE_CPPCHECK "Enable cpp-check analysis" ON)
     option(nc_complex_ENABLE_PCH "Enable precompiled headers" OFF)
+    option(nc_complex_BUILD_EXAMPLES "Build nc-compelx examples" ON)
   endif()
 
   if(NOT PROJECT_IS_TOP_LEVEL)
@@ -74,7 +75,9 @@ macro(nc_complex_setup_options)
       nc_complex_ENABLE_CPPCHECK
       nc_complex_ENABLE_COVERAGE
       nc_complex_ENABLE_PCH
-      nc_complex_ENABLE_CACHE)
+      nc_complex_ENABLE_CACHE
+      nc_complex_BUILD_EXAMPLES
+    )
   endif()
 
   nc_complex_check_libfuzzer_support(LIBFUZZER_SUPPORTED)

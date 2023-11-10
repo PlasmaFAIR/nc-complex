@@ -41,4 +41,8 @@ if (PROJECT_IS_TOP_LEVEL)
   if (BUILD_TESTING)
     add_subdirectory(tests)
   endif()
+
+  if (nc_complex_BUILD_EXAMPLES)
+    add_subdirectory(examples/C)
+  endif()
 endif()
