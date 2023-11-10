@@ -49,7 +49,7 @@ constexpr std::array<size_t, NC_MAX_VAR_DIMS> zeros = {0};
 constexpr auto pfnc_complex_dir = "nc_complex_tests";
 
 auto test_directory() {
-    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
+    auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
     fs::create_directory(test_dir);
     return test_dir;
 }
