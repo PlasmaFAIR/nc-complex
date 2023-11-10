@@ -36,7 +36,7 @@ find_package(netCDF REQUIRED)
 
 add_subdirectory(src)
 
-if (PROJECT_IS_TOP_LEVEL AND NOT SKBUILD)
+if (PROJECT_IS_TOP_LEVEL)
   include(CTest)
   if (BUILD_TESTING)
     add_subdirectory(tests)
