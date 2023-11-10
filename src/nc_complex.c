@@ -727,12 +727,12 @@ int pfnc_get_vara(
         nc_type base_type;
         CHECK(pfnc_inq_var_complex_base_type(ncid, varid, &base_type));
         switch (base_type) {
-            case NC_DOUBLE:
-                return pfnc_get_vara_double_complex(ncid, varid, startp, countp, ip);
-            case NC_FLOAT:
-                return pfnc_get_vara_float_complex(ncid, varid, startp, countp, ip);
-            default:
-                return NC_EBADTYPE;
+        case NC_DOUBLE:
+            return pfnc_get_vara_double_complex(ncid, varid, startp, countp, ip);
+        case NC_FLOAT:
+            return pfnc_get_vara_float_complex(ncid, varid, startp, countp, ip);
+        default:
+            return NC_EBADTYPE;
         }
     }
 
