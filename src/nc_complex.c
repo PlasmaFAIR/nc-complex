@@ -738,3 +738,48 @@ int pfnc_get_vara(
 
     return nc_get_vara(ncid, varid, startp, countp, ip);
 }
+
+int pfnc_put_vara(
+    int ncid, int varid, const size_t* startp, const size_t* countp, const void* op
+) {
+    if (pfnc_var_is_complex(ncid, varid)) {
+        nc_type base_type;
+        CHECK(pfnc_inq_var_complex_base_type(ncid, varid, &base_type));
+        switch (base_type) {
+        case NC_DOUBLE:
+            return pfnc_put_vara_double_complex(ncid, varid, startp, countp, op);
+        case NC_FLOAT:
+            return pfnc_put_vara_float_complex(ncid, varid, startp, countp, op);
+        default:
+            return NC_EBADTYPE;
+        }
+    }
+    return nc_put_vara(ncid, varid, startp, countp, op);
+}
+
+int pfnc_put_vars(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    const void* op
+) {
+    if (pfnc_var_is_complex(ncid, varid)) {
+        nc_type base_type;
+        CHECK(pfnc_inq_var_complex_base_type(ncid, varid, &base_type));
+        switch (base_type) {
+        case NC_DOUBLE:
+            return pfnc_put_vars_double_complex(
+                ncid, varid, startp, countp, stridep, op
+            );
+        case NC_FLOAT:
+            return pfnc_put_vars_float_complex(
+                ncid, varid, startp, countp, stridep, op
+            );
+        default:
+            return NC_EBADTYPE;
+        }
+    }
+    return nc_put_vars(ncid, varid, startp, countp, stridep, op);
+}
