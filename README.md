@@ -1,45 +1,27 @@
 nc-complex
 ==========
 
-`nc-complex` is a drop-in extension for netCDF that handles reading
-and writing complex numbers, with APIs for C and Python (and
-eventually C++ and Fortran).
+`nc-complex` is a lightweight, drop-in extension for netCDF that
+handles reading and writing complex numbers. Currently there is just a
+C API, but this is being integrated into [netcdf4-python][netcdf4],
+and C++ and Fortran APIs are planned.
 
-This is currently at the proof-of-concept/alpha stage, and is not
-suitable for production use just yet.
+The `nc-complex` library understands most of the major existing
+conventions for storing complex numbers, including as a compound
+datatype or as a dimension of size two, and should work for any netCDF
+file format. See [below](#conventions-for-complex-numbers) for details
+of complex number conventions in netCDF.
 
 Examples
 --------
 
-The Python API is built on top of [netCDF4][netcdf4], and the only
-change required to start using complex numbers is to import
-`nc_complex` instead of `netCDF4`:
+`nc-complex` is implemented as a set of wrappers around the standard
+netCDF functions, that take care of abstracting over the actual
+storage convention for complex numbers being used. The wrappers have
+the same signatures as the functions they wrap, but are named `pfnc_*`
+(for PlasmaFAIR) instead of `nc_*`.
 
-```python
-import nc_complex as netCDF4
-import numpy as np
-
-complex_array = np.array([0 + 0j, 1 + 0j, 0 + 1j, 1 + 1j, 0.25 + 0.75j], dtype="c16")
-
-with netCDF4.Dataset(filename, "w") as f:
-    f.createDimension("x", size=len(complex_array))
-    complex_var = f.createVariable("complex_data", "c16", ("x",))
-    complex_var[:] = complex_array
-
-with netCDF4.Dataset(filename, "r") as f:
-    print(f["complex_data"])
-    print(f["complex_data"][:])
-
-# <class 'nc_complex.Variable'>
-# compound data_dim(x)
-# compound data type: complex128
-# unlimited dimensions:
-# current shape = (5,)
-# [0.  +0.j   1.  +0.j   0.  +1.j   1.  +1.j   0.25+0.75j]
-```
-
-Here we've imported `nc_complex as netCDF4` to demonstrate that the
-API is identical.
+We can simply replace `nc_def_var`
 
 In C, the only new function we strictly need is
 `pfnc_get_double_complex_typeid`, which creates a netCDF compound type
@@ -49,28 +31,51 @@ file, this is used instead of making a new one.
 A stripped-down example using this:
 
 ```C
-nc_create(full_filename, NC_NETCDF4 | NC_CLOBBER, &ncid);
+nc_create(filename, NC_NETCDF4 | NC_CLOBBER, &ncid);
 nc_def_dim(ncid, "x", len_x, &x_dim_id);
 
-pfnc_get_double_complex_typeid(ncid, &type_id);
+pfnc_def_var(ncid, "data_complex", PFNC_DOUBLE_COMPLEX, 1, dim_ids, &var_id);
 
-nc_def_var(ncid, "data_struct", type_id, 1, dim_struct_ids, &var_id);
-nc_put_var(ncid, var_struct_id, data);
+nc_put_var(ncid, var_id, data);
 
-nc_get_vara(ncid, var_struct_id, data_out);
+pfnc_get_vara_double_complex(ncid, var_id, starts, NULL, data_out);
 ```
 
-There are also some wrappers for several netCDF functions that handle
-reading/writing variables that use a separate dimension to represent
-complex numbers:
+Here we've used `pfnc_def_var` to define the variable in the file, and
+used `PFNC_DOUBLE_COMPLEX` as the datatype. This takes care of
+ensuring there is a compound datatype already in the file.
+
+That's it!
+
+Well, almost. There are some subtleties when using certain file
+formats, like `NETCDF3`, which don't support user defined
+datatypes. In those cases, `nc-complex` will automatically fall back
+to using a complex dimension instead. It's also possible to explicitly
+request a complex dimension instead of a datatype by using
+`PFNC_DOUBLE_COMPLEX_DIM` with `pfnc_def_var`.
+
+Complex dimensions require some careful handling, as the variable in
+your code will have different dimensions to the netCDF
+variable. `nc-complex` also automatically takes care of this too:
 
 ```C
-pfnc_get_vara(ncid, var_id, &starts, &counts, data)
+double_complex data[len_x];
+size_t starts[1] = {0};
+size_t counts[1] = {len_x};
+pfnc_get_vara_double_complex(ncid, var_id, &starts, &counts, data)
 ```
 
-This works exactly the same as `nc_get_vara`, except that it ensures
-`starts` and `counts` are correct for variables using a complex
-dimension.
+Here, if the variable has a complex dimension, then using the
+traditional netCDF API would require `starts` and `counts` to be of
+length two -- however, `nc-complex` handles all this under the hood,
+and so the same snippet above will work the same, whichever convention
+is being used in the file.
+
+Limitations
+-----------
+
+There is currently no specialised support for variable length
+("VLens") datasets: use at your own risk!
 
 The problem
 -----------
@@ -312,9 +317,7 @@ types in HDF5 code.
 Licence
 -------
 
-`nc-complex` is released under the MIT licence. The Python API
-includes [netCDF4-python][netcdf4], which is copyright Jeffrey
-Whitaker, and also released under the MIT licence.
+`nc-complex` is released under the MIT licence.
 
 [netcdf4]: http://unidata.github.io/netcdf4-python/
 [cpp_memcpy_example]: https://en.cppreference.com/w/c/language/arithmetic_types#Complex_floating_types
