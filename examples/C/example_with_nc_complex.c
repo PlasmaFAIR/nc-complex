@@ -35,5 +35,7 @@ int main(void) {
         print_complex("", data_out[i]);
     }
 
+    nc_close(ncid);
+
     return 0;
 }

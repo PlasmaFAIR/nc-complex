@@ -25,8 +25,8 @@ int main(void) {
     nc_def_dim(ncid, "complex", len_complex, &complex_dim_id);
 
     int var_id = 0;
-    int dim_ids[2] = {x_dim_id, len_complex};
-    nc_def_var(ncid, "data_complex", NC_DOUBLE, 1, dim_ids, &var_id);
+    int dim_ids[2] = {x_dim_id, complex_dim_id};
+    nc_def_var(ncid, "data_complex", NC_DOUBLE, 2, dim_ids, &var_id);
 
     double_complex data[len_x] = {CMPLX(0., 1.), CMPLX(2., 3.), CMPLX(4., 5)};
     nc_put_var(ncid, var_id, data);
@@ -38,6 +38,8 @@ int main(void) {
     for (size_t i = 0; i < len_x; i++) {
         print_complex("", data_out[i]);
     }
+
+    nc_close(ncid);
 
     return 0;
 }
