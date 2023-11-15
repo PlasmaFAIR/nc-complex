@@ -1,11 +1,10 @@
 #ifndef PLASMA_FAIR_NC_COMPLEX
 #define PLASMA_FAIR_NC_COMPLEX
 
-#include <netcdf.h>
-
 #include "nc_complex/nc_complex_export.h"
 
 #include <complex.h>
+#include <netcdf.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -219,14 +218,18 @@ NC_COMPLEX_EXPORT int pfnc_get_vars(
     void* ip
 );
 
-NC_COMPLEX_EXPORT int
-pfnc_put_vara(int ncid, int varid,  const size_t *startp,
-            const size_t *countp, const void *op);
+NC_COMPLEX_EXPORT int pfnc_put_vara(
+    int ncid, int varid, const size_t* startp, const size_t* countp, const void* op
+);
 
-NC_COMPLEX_EXPORT int
-pfnc_put_vars(int ncid, int varid,  const size_t *startp,
-            const size_t *countp, const ptrdiff_t *stridep,
-            const void *op);
+NC_COMPLEX_EXPORT int pfnc_put_vars(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    const void* op
+);
 
 NC_COMPLEX_EXPORT const char* pfnc_inq_libvers(void);
 
