@@ -783,3 +783,30 @@ int pfnc_put_vars(
     }
     return nc_put_vars(ncid, varid, startp, countp, stridep, op);
 }
+
+int pfnc_get_vars(
+    int ncid,
+    int varid,
+    const size_t* startp,
+    const size_t* countp,
+    const ptrdiff_t* stridep,
+    void* ip
+) {
+    if (pfnc_var_is_complex(ncid, varid)) {
+        nc_type base_type;
+        CHECK(pfnc_inq_var_complex_base_type(ncid, varid, &base_type));
+        switch (base_type) {
+        case NC_DOUBLE:
+            return pfnc_get_vars_double_complex(
+                ncid, varid, startp, countp, stridep, ip
+            );
+        case NC_FLOAT:
+            return pfnc_get_vars_float_complex(
+                ncid, varid, startp, countp, stridep, ip
+            );
+        default:
+            return NC_EBADTYPE;
+        }
+    }
+    return nc_get_vars(ncid, varid, startp, countp, stridep, ip);
+}
