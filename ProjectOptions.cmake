@@ -80,6 +80,8 @@ macro(nc_complex_setup_options)
     )
   endif()
 
+  option(nc_complex_ENABLE_Fortran "Build Fortran API" OFF)
+
   nc_complex_check_libfuzzer_support(LIBFUZZER_SUPPORTED)
   if(LIBFUZZER_SUPPORTED AND (nc_complex_ENABLE_SANITIZER_ADDRESS OR nc_complex_ENABLE_SANITIZER_THREAD OR nc_complex_ENABLE_SANITIZER_UNDEFINED))
     set(DEFAULT_FUZZER ON)

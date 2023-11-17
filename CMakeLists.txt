@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(nc-complex
   DESCRIPTION "Complex numbers for netCDF"
   VERSION 0.1.0
-  LANGUAGES C CXX Fortran)
+  LANGUAGES C CXX)
 
 include(cmake/PreventInSourceBuilds.cmake)
 include(ProjectOptions.cmake)
@@ -30,6 +30,10 @@ target_compile_features(nc_complex_options INTERFACE
   cxx_std_${CMAKE_CXX_STANDARD}
   c_std_${CMAKE_C_STANDARD}
 )
+
+if (nc_complex_ENABLE_Fortran)
+  enable_language(Fortran)
+endif()
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(netCDF REQUIRED)
