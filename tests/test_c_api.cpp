@@ -94,7 +94,7 @@ int create_file(const fs::path& filename) {
     fs::remove(filename);
 
     int ncid = 0;
-    PFNC_CHECK(nc_create(filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    PFNC_CHECK(nc_create(filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     PFNC_CHECK(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -213,7 +213,7 @@ TEST_CASE("Read test file") {
     }
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_open(test_file.c_str(), NC_NOWRITE, &ncid));
+    REQUIRE_NETCDF(nc_open(test_file.string().c_str(), NC_NOWRITE, &ncid));
 
     SECTION("Using netCDF API") {
         SECTION("Reading (double) dimensional variable") {
@@ -588,7 +588,7 @@ TEST_CASE("Write complex-structure variable") {
     fs::remove(full_filename);
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -693,7 +693,7 @@ TEST_CASE("Write complex-dimensioned variable") {
     fs::remove(full_filename);
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -811,7 +811,7 @@ TEST_CASE("Write custom-type variable") {
     fs::remove(full_filename);
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -899,7 +899,7 @@ TEST_CASE("Write custom-type variable (netCDF3)") {
     fs::remove(full_filename);
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -989,7 +989,7 @@ TEST_CASE("Write custom-type variable with pre-existing type") {
     fs::remove(full_filename);
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
