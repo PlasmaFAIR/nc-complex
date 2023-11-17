@@ -89,6 +89,9 @@ macro(nc_complex_setup_options)
 
   option(nc_complex_BUILD_FUZZ_TESTS "Enable fuzz testing executable" ${DEFAULT_FUZZER})
 
+  option(nc_complex_ENABLE_Fortran "Build Fortran API" OFF)
+  option(nc_complex_ENABLE_CXX "Build C++ API" OFF)
+
 endmacro()
 
 macro(nc_complex_global_options)
