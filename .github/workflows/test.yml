@@ -54,10 +54,16 @@ jobs:
 
       - name: Update PATH (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Add-Content $env:GITHUB_PATH "~/micromamba/envs/build/bin"
+        shell: bash
+        run: |
+          echo ${{ env.MAMBA_ROOT_PREFIX }}
+          ls ${{ env.MAMBA_ROOT_PREFIX }}/envs/build/Library
+          echo "${{ env.MAMBA_ROOT_PREFIX }}/envs/build/bin" >> $GITHUB_PATH
+          echo "netCDF_ROOT=${{ env.MAMBA_ROOT_PREFIX }}/envs/build/Library" >> "$GITHUB_ENV
 
       - name: Check netCDF config
-        run: nc-config --all
+        shell: bash
+        run: echo "$PATH" && echo $netCDF_ROOT && nc-config --all
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE`
