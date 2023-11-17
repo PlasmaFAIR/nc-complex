@@ -46,7 +46,8 @@ if (PROJECT_IS_TOP_LEVEL)
     add_subdirectory(tests)
   endif()
 
-  if (nc_complex_BUILD_EXAMPLES)
+  # MSVC doesn't really handle complex numbers in C
+  if (nc_complex_BUILD_EXAMPLES AND NOT WIN32)
     add_subdirectory(examples/C)
   endif()
 endif()
