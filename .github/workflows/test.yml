@@ -1,10 +1,6 @@
 name: Tests
 on: [push, pull_request]
 
-defaults:
-  run:
-    shell: bash
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -75,11 +71,11 @@ jobs:
         # generator such as make.  See
         # https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          cmake -B "${{ steps.strings.outputs.build-output-dir }}"
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -S ${{ github.workspace }}
+          -S "${{ github.workspace }}"
 
       - name: Build
         # Build your program with the given configuration. Note that
