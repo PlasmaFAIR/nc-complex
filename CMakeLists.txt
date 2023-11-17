@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(nc-complex
   DESCRIPTION "Complex numbers for netCDF"
   VERSION 0.1.0
-  LANGUAGES C)
+  LANGUAGES C CXX)
 
 include(cmake/PreventInSourceBuilds.cmake)
 include(ProjectOptions.cmake)
@@ -27,15 +27,9 @@ nc_complex_local_options()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 target_compile_features(nc_complex_options INTERFACE
+  cxx_std_${CMAKE_CXX_STANDARD}
   c_std_${CMAKE_C_STANDARD}
 )
-
-if (nc_complex_ENABLE_CXX)
-  enable_language(CXX)
-  target_compile_features(nc_complex_options INTERFACE
-    cxx_std_${CMAKE_CXX_STANDARD}
-  )
-endif()
 
 if (nc_complex_ENABLE_Fortran)
   enable_language(Fortran)
