@@ -61,7 +61,7 @@ jobs:
           ls C:/Users/runneradmin/micromamba/envs/build/Library/cmake
           echo "-----"
           echo "C:/Users/runneradmin/micromamba/envs/build/Library/bin" >> $GITHUB_PATH
-          echo "netCDF_ROOT=C:/Users/runneradmin/micromamba/envs/build/Library/cmake" >>"$GITHUB_ENV
+          echo "netCDF_ROOT=C:/Users/runneradmin/micromamba/envs/build/Library/cmake" >> $GITHUB_ENV
 
       - name: Check netCDF config
         shell: bash
