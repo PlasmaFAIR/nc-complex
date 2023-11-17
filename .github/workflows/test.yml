@@ -105,4 +105,5 @@ jobs:
         # is a multi-config generator (Visual Studio generator).  See
         # https://cmake.org/cmake/help/latest/manual/ctest.1.html for
         # more detail
-        run: ctest --build-config ${{ matrix.build_type }}
+        run: |
+          ctest --build-config ${{ matrix.build_type }} --output-on-failure
