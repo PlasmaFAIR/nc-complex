@@ -314,7 +314,7 @@ int pfnc_put_vara_double_complex(
     int varid,
     const size_t* startp,
     const size_t* countp,
-    const double _Complex* op
+    const double_complex* op
 ) {
     return pfnc_put_vars_double_complex(ncid, varid, startp, countp, NULL, op);
 }
@@ -436,7 +436,7 @@ int pfnc_put_vara_float_complex(
     int varid,
     const size_t* startp,
     const size_t* countp,
-    const float _Complex* op
+    const float_complex* op
 ) {
     return pfnc_put_vars_float_complex(ncid, varid, startp, countp, NULL, op);
 }
