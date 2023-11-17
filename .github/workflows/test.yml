@@ -56,10 +56,6 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         shell: bash
         run: |
-          ls C:/Users/runneradmin/micromamba/envs/build/Library/bin
-          echo "-----"
-          ls C:/Users/runneradmin/micromamba/envs/build/Library/cmake
-          echo "-----"
           echo "C:/Users/runneradmin/micromamba/envs/build/Library/bin" >> $GITHUB_PATH
           echo "netCDF_ROOT=C:/Users/runneradmin/micromamba/envs/build/Library/cmake" >> $GITHUB_ENV
 
@@ -77,7 +73,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DnetCDF_DEBUG=ON
+          -Dnc_complex_ENABLE_IPO=OFF
           -S "${{ github.workspace }}"
 
       - name: Build
