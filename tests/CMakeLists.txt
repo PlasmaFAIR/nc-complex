@@ -28,6 +28,14 @@ target_link_libraries(test_c_api
 )
 target_compile_features(test_c_api PUBLIC cxx_std_17)
 
+if(WIN32 AND BUILD_SHARED_LIBS)
+  add_custom_command(
+    TARGET test_c_api
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:test_c_api> $<TARGET_FILE_DIR:test_c_api>
+    COMMAND_EXPAND_LISTS)
+endif()
+
 catch_discover_tests(
   test_c_api
   TEST_PREFIX "unittests."
