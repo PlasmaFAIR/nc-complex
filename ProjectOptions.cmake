@@ -80,17 +80,19 @@ macro(nc_complex_setup_options)
     )
   endif()
 
-  nc_complex_check_libfuzzer_support(LIBFUZZER_SUPPORTED)
-  if(LIBFUZZER_SUPPORTED AND (nc_complex_ENABLE_SANITIZER_ADDRESS OR nc_complex_ENABLE_SANITIZER_THREAD OR nc_complex_ENABLE_SANITIZER_UNDEFINED))
-    set(DEFAULT_FUZZER ON)
-  else()
-    set(DEFAULT_FUZZER OFF)
-  endif()
-
-  option(nc_complex_BUILD_FUZZ_TESTS "Enable fuzz testing executable" ${DEFAULT_FUZZER})
-
   option(nc_complex_ENABLE_Fortran "Build Fortran API" OFF)
   option(nc_complex_ENABLE_CXX "Build C++ API" OFF)
+
+  if (nc_complex_ENABLE_CXX)
+    nc_complex_check_libfuzzer_support(LIBFUZZER_SUPPORTED)
+    if(LIBFUZZER_SUPPORTED AND (nc_complex_ENABLE_SANITIZER_ADDRESS OR nc_complex_ENABLE_SANITIZER_THREAD OR nc_complex_ENABLE_SANITIZER_UNDEFINED))
+      set(DEFAULT_FUZZER ON)
+    else()
+      set(DEFAULT_FUZZER OFF)
+    endif()
+
+    option(nc_complex_BUILD_FUZZ_TESTS "Enable fuzz testing executable" ${DEFAULT_FUZZER})
+  endif()
 
 endmacro()
 
