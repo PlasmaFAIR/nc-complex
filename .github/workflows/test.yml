@@ -69,6 +69,9 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: Add-Content $env:GITHUB_PATH "~/micromamba/envs/build/bin"
 
+      - name: Check netCDF config
+        run: nc-config --all
+
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE`
         # is only required if you are using a single-configuration
@@ -79,6 +82,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DnetCDF_DEBUG=ON
           -S "${{ github.workspace }}"
 
       - name: Build
