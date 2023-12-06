@@ -981,3 +981,49 @@ TEST_CASE("Write custom-type variable (netCDF3)") {
 
     REQUIRE_NETCDF(nc_close(ncid));
 }
+
+TEST_CASE("Write custom-type variable with pre-existing type") {
+    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
+    fs::create_directory(test_dir);
+    const auto full_filename = test_dir / "test_write_preexisting_type.nc";
+    fs::remove(full_filename);
+
+    int ncid = 0;
+    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+
+    int x_dim_id = 0;
+    REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
+
+    nc_type complex_type_id;
+    REQUIRE_NETCDF(nc_def_compound(
+        ncid, sizeof(std::complex<double>), "custom_complex", &complex_type_id
+    ));
+    REQUIRE_NETCDF(nc_insert_compound(ncid, complex_type_id, "r", 0, NC_DOUBLE));
+    REQUIRE_NETCDF(
+        nc_insert_compound(ncid, complex_type_id, "i", sizeof(double), NC_DOUBLE)
+    );
+
+    int var_id = 0;
+    const std::array<int, 1> dim_ids{{x_dim_id}};
+    REQUIRE_NETCDF(
+        pfnc_def_var(ncid, "data", PFNC_DOUBLE_COMPLEX, 1, dim_ids.data(), &var_id)
+    );
+
+    int base_type_id{};
+    REQUIRE_NETCDF(pfnc_inq_var_complex_base_type(ncid, var_id, &base_type_id));
+    REQUIRE(base_type_id == NC_DOUBLE);
+
+    nc_type var_type_id{};
+    REQUIRE_NETCDF(nc_inq_vartype(ncid, var_id, &var_type_id));
+    REQUIRE(var_type_id == complex_type_id);
+
+    REQUIRE_NETCDF(nc_put_var(ncid, var_id, double_data.data()));
+
+    std::array<std::complex<double>, len_x> data_out;
+    REQUIRE_NETCDF(pfnc_get_vara_double_complex(
+        ncid, var_id, zeros.data(), nullptr, to_c_complex(data_out)
+    ));
+    REQUIRE(data_out == double_data);
+
+    REQUIRE_NETCDF(nc_close(ncid));
+}
