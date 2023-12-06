@@ -1,3 +1,10 @@
+/// nc-complex: A lightweight, drop-in extension for complex number support in
+/// netCDF
+///
+/// Copyright (C) 2023 Peter Hill
+///
+/// SPDX-License-Identifier: MIT
+
 #ifndef PLASMA_FAIR_NC_COMPLEX
 #define PLASMA_FAIR_NC_COMPLEX
 
@@ -20,6 +27,10 @@
 #include <complex>
 #endif
 
+//@{
+/// Portable typedefs for complex numbers
+///
+/// These become aliases for `std::complex` with C++.
 #ifdef _MSC_VER
 typedef _Dcomplex double_complex;
 typedef _Fcomplex float_complex;
@@ -32,9 +43,12 @@ typedef double _Complex double_complex;
 typedef float _Complex float_complex;
 #endif
 #endif
-
+//@}
 
 #ifdef __cplusplus
+/// @name Helper functions
+///@{
+/// Helper functions for converting between (pointers to) C++ and C complex types
 NC_COMPLEX_EXPORT inline double_complex* cpp_to_c_complex(std::complex<double>* data) {
     return reinterpret_cast<double_complex*>(data);
 }
@@ -50,26 +64,31 @@ NC_COMPLEX_EXPORT inline float_complex* cpp_to_c_complex(std::complex<float>* da
 NC_COMPLEX_EXPORT inline std::complex<float>* c_to_cpp_complex(float_complex* data) {
     return reinterpret_cast<std::complex<float>*>(data);
 }
-
+///@}
 extern "C" {
 #endif
 
-/// Datatype for float complex, for use with `pfnc_def_var`
-///
+/// @name Complex datatype defines
+/// Datatype for complex numbers, for use with \rstref{pfnc_def_var}
+///  
+/// @note
+/// These *only* work when defining a variable with \rstref{pfnc_def_var}. To
+/// check the type of an existing variable use \rstref{pfnc_var_is_complex}, and
+/// to check if it is specifically using a compound datatype or a dimension use
+/// \rstref{pfnc_var_is_complex_type} or \rstref{pfnc_var_has_complex_dimension}
+/// respectively.
+/// @endnote  
+///@{  
+
 /// Uses complex compound datatype with netCDF4 format, and complex dimension otherwise
 #define PFNC_FLOAT_COMPLEX (NC_FIRSTUSERTYPEID - 4)
-/// Datatype for float complex, for use with `pfnc_def_var`
-///
 /// Always use a complex dimension, regardless of file format
 #define PFNC_FLOAT_COMPLEX_DIM (NC_FIRSTUSERTYPEID - 3)
-/// Datatype for double complex, for use with `pfnc_def_var`
-///
 /// Uses complex compound datatype with netCDF4 format, and complex dimension otherwise
 #define PFNC_DOUBLE_COMPLEX (NC_FIRSTUSERTYPEID - 2)
-/// Datatype for double complex, for use with `pfnc_def_var`
-///
 /// Always use a complex dimension, regardless of file format
 #define PFNC_DOUBLE_COMPLEX_DIM (NC_FIRSTUSERTYPEID - 1)
+///@}
 
 /// Return true if variable is complex
 NC_COMPLEX_EXPORT bool pfnc_var_is_complex(int ncid, int varid);
@@ -82,8 +101,9 @@ NC_COMPLEX_EXPORT bool pfnc_var_has_complex_dimension(int ncid, int varid);
 /// Return true if dimension is complex
 NC_COMPLEX_EXPORT bool pfnc_is_complex_dim(int ncid, int dim_id);
 
-/// Create complex datatype if it doesn't already exist
+/// Get the ID for the complex datatype with `double` elements, creating it if it doesn't already exist
 NC_COMPLEX_EXPORT int pfnc_get_double_complex_typeid(int ncid, nc_type* nc_typeid);
+/// Get the ID for the complex datatype with `float` elements, creating it if it doesn't already exist
 NC_COMPLEX_EXPORT int pfnc_get_float_complex_typeid(int ncid, nc_type* nc_typeid);
 
 /// Get complex dimension, creating one if it doesn't already exist
@@ -100,6 +120,42 @@ NC_COMPLEX_EXPORT int pfnc_complex_base_type(
 /// Get the base numerical type of a complex variable
 NC_COMPLEX_EXPORT int pfnc_inq_var_complex_base_type(
     int ncid, int varid, nc_type* nc_typeid
+);
+
+/// Return some information about the `nc-complex` library
+NC_COMPLEX_EXPORT const char* pfnc_inq_libvers(void);
+
+/// @name Wrappers
+/// Wrappers for the equivalent `nc_*` functions that correctly handle
+/// the start/count/stride arrays for complex dimensions.
+///
+/// When the variable is stored using a complex dimension, the file
+/// representation has one more dimension than the user-visible
+/// in-memory representation. For example, a 1D array:
+///
+/// ```c
+/// double_complex data[5];
+/// ```
+///
+/// would be represented in the file with two dimensions (when not
+/// using a compound datatype!), and so if we use the standard netCDF
+/// API we would need to use `{5, 2}` for the `countp` arguments, for
+/// example, while using nc-complex, we only need `{5}`.
+///  
+/// NOTE: The `pfnc_put/get*` functions do *not* currently handle
+/// conversion between `float/double` base types
+///@{
+
+/// Extension to `nc_def_var` that also accepts
+/// \rstref{PFNC_FLOAT_COMPLEX}, \rstref{PFNC_FLOAT_COMPLEX_DIM},
+/// \rstref{PFNC_DOUBLE_COMPLEX}, and \rstref{PFNC_DOUBLE_COMPLEX_DIM}
+NC_COMPLEX_EXPORT int pfnc_def_var(
+    int ncid,
+    const char* name,
+    nc_type xtype,
+    int ndims,
+    const int* dimidsp,
+    int* varidp
 );
 
 NC_COMPLEX_EXPORT int pfnc_put_vara_double_complex(
@@ -176,19 +232,6 @@ NC_COMPLEX_EXPORT int pfnc_get_var1_float_complex(
     int ncid, int varid, const size_t* indexp, float_complex* data
 );
 
-// Custom shims for lying about dimensional variables
-
-/// Extension to `nc_def_var` that also accepts `PFNC_FLOAT_COMPLEX`,
-/// `PFNC_FLOAT_COMPLEX_DIM`, `PFNC_DOUBLE_COMPLEX`, and `PFNC_DOUBLE_COMPLEX_DIM`
-NC_COMPLEX_EXPORT int pfnc_def_var(
-    int ncid,
-    const char* name,
-    nc_type xtype,
-    int ndims,
-    const int* dimidsp,
-    int* varidp
-);
-
 NC_COMPLEX_EXPORT int pfnc_inq_var(
     int ncid,
     int varid,
@@ -198,6 +241,7 @@ NC_COMPLEX_EXPORT int pfnc_inq_var(
     int* dimidsp,
     int* nattsp
 );
+
 // NOLINTBEGIN(modernize-use-nullptr)
 NC_COMPLEX_EXPORT inline int pfnc_inq_varndims(int ncid, int varid, int* ndimsp) {
     return pfnc_inq_var(ncid, varid, NULL, NULL, ndimsp, NULL, NULL);
@@ -238,8 +282,7 @@ NC_COMPLEX_EXPORT int pfnc_put_vars(
     const ptrdiff_t* stridep,
     const void* op
 );
-
-NC_COMPLEX_EXPORT const char* pfnc_inq_libvers(void);
+///@}
 
 #ifdef __cplusplus
 }
