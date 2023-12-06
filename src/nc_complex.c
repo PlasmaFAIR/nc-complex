@@ -250,34 +250,34 @@ bool pfnc_var_is_complex_type(int ncid, int varid) {
     return false;
 }
 
-int pfnc_get_double_complex_typeid(int ncid, nc_type* type_id) {
+int pfnc_get_double_complex_typeid(int ncid, nc_type* nc_typeid) {
     // TODO: Error if not netCDF4
 
-    if (file_has_double_complex_struct(ncid, type_id)) {
+    if (file_has_double_complex_struct(ncid, nc_typeid)) {
         return NC_NOERR;
     }
 
     CHECK(nc_def_compound(
-        ncid, sizeof(double_complex), double_complex_struct_name, type_id
+        ncid, sizeof(double_complex), double_complex_struct_name, nc_typeid
     ));
-    CHECK(nc_insert_compound(ncid, *type_id, "r", 0, NC_DOUBLE));
-    CHECK(nc_insert_compound(ncid, *type_id, "i", sizeof(double), NC_DOUBLE));
+    CHECK(nc_insert_compound(ncid, *nc_typeid, "r", 0, NC_DOUBLE));
+    CHECK(nc_insert_compound(ncid, *nc_typeid, "i", sizeof(double), NC_DOUBLE));
 
     return NC_NOERR;
 }
 
-int pfnc_get_float_complex_typeid(int ncid, nc_type* type_id) {
+int pfnc_get_float_complex_typeid(int ncid, nc_type* nc_typeid) {
     // TODO: Error if not netCDF4
 
-    if (file_has_float_complex_struct(ncid, type_id)) {
+    if (file_has_float_complex_struct(ncid, nc_typeid)) {
         return NC_NOERR;
     }
 
     CHECK(
-        nc_def_compound(ncid, sizeof(float_complex), float_complex_struct_name, type_id)
+        nc_def_compound(ncid, sizeof(float_complex), float_complex_struct_name, nc_typeid)
     );
-    CHECK(nc_insert_compound(ncid, *type_id, "r", 0, NC_FLOAT));
-    CHECK(nc_insert_compound(ncid, *type_id, "i", sizeof(float), NC_FLOAT));
+    CHECK(nc_insert_compound(ncid, *nc_typeid, "r", 0, NC_FLOAT));
+    CHECK(nc_insert_compound(ncid, *nc_typeid, "i", sizeof(float), NC_FLOAT));
 
     return NC_NOERR;
 }
