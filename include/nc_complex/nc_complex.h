@@ -94,12 +94,12 @@ NC_COMPLEX_EXPORT int pfnc_get_complex_dim(int ncid, int* nc_dim);
 /// Returns the type of the components for a compound type, or the
 /// type of an element for a dimension type.
 NC_COMPLEX_EXPORT int pfnc_complex_base_type(
-    int ncid, int nc_typeid, int* base_type_id
+    int ncid, nc_type nc_typeid, nc_type* base_type_id
 );
 
 /// Get the base numerical type of a complex variable
 NC_COMPLEX_EXPORT int pfnc_inq_var_complex_base_type(
-    int ncid, int varid, int* nc_typeid
+    int ncid, int varid, nc_type* nc_typeid
 );
 
 NC_COMPLEX_EXPORT int pfnc_put_vara_double_complex(

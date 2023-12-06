@@ -56,7 +56,7 @@ bool pfnc_var_is_complex(int ncid, int varid) {
         || pfnc_var_has_complex_dimension(ncid, varid);
 }
 
-int pfnc_complex_base_type(int ncid, int nc_typeid, int* base_type_id) {
+int pfnc_complex_base_type(int ncid, nc_type nc_typeid, nc_type* base_type_id) {
     if (nc_typeid < NC_MAX_ATOMIC_TYPE) {
         *base_type_id = nc_typeid;
         return NC_NOERR;
@@ -69,14 +69,14 @@ int pfnc_complex_base_type(int ncid, int nc_typeid, int* base_type_id) {
     );
 }
 
-int pfnc_inq_var_complex_base_type(int ncid, int varid, int* nc_typeid) {
+int pfnc_inq_var_complex_base_type(int ncid, int varid, nc_type* nc_typeid) {
     nc_type var_type_id;
     CHECK(nc_inq_vartype(ncid, varid, &var_type_id));
     return pfnc_complex_base_type(ncid, var_type_id, nc_typeid);
 }
 
 /// Return true if a compound type is compatible with a known convention
-bool compound_type_is_compatible(int ncid, int nc_typeid) {
+bool compound_type_is_compatible(int ncid, nc_type nc_typeid) {
     // Does the name matching a known convention?
     char name[NC_MAX_NAME + 1];
     nc_inq_compound_name(ncid, nc_typeid, name);
