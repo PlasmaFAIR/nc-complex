@@ -49,7 +49,8 @@ jobs:
 
       - name: Install dependencies
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt install -y libnetcdf-dev libnetcdf-c++4-dev netcdf-bin
+        run: sudo apt update &&
+             sudo apt install -y libnetcdf-dev libnetcdf-c++4-dev netcdf-bin
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE`
