@@ -167,42 +167,6 @@ cleanup:
     return result;
 }
 
-bool file_has_double_complex_struct(int ncid, nc_type* typeidp) {
-    // Simplest case, check for our type name
-    int err = nc_inq_typeid(ncid, double_complex_struct_name, typeidp);
-    if (err == NC_NOERR) {
-        return true;
-    }
-
-    int ntypes;
-    err = nc_inq_typeids(ncid, &ntypes, NULL);
-    if (err != NC_NOERR) {
-        return false;
-    }
-
-    nc_type* typeids = malloc((size_t)ntypes * sizeof(nc_type));
-    err = nc_inq_typeids(ncid, NULL, typeids);
-    if (err != NC_NOERR) {
-        return false;
-    }
-
-    for (size_t i = 0; i < (size_t)ntypes; i++) {
-        if (compound_type_is_compatible(ncid, typeids[i])) {
-            nc_type base_type_id;
-            if (pfnc_complex_base_type(ncid, typeids[i], &base_type_id)) {
-                *typeidp = typeids[i];
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool file_has_float_complex_struct(int ncid, nc_type* typeidp) {
-    const int err = nc_inq_typeid(ncid, float_complex_struct_name, typeidp);
-    return (err == NC_NOERR) && (*typeidp > 0);
-}
-
 /// Return true if a given dimension matches a known convention
 bool pfnc_is_complex_dim(int ncid, int dim_id) {
     size_t length;
