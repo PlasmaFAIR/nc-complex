@@ -52,6 +52,12 @@ jobs:
           create-args: >-
             python=3.11 libnetcdf=4.9.2 --channel conda-forge
 
+      - name: Setup Cpp
+        uses: aminya/setup-cpp@v1
+        with:
+          cmake: true
+          ninja: true
+
       - name: Update PATH (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         shell: bash
@@ -76,6 +82,7 @@ jobs:
           -DBUILD_SHARED_LIBS=off
           -Dnc_complex_ENABLE_IPO=OFF
           -S "${{ github.workspace }}"
+          -G Ninja
 
       - name: Build
         # Build your program with the given configuration. Note that
