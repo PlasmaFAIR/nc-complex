@@ -26,6 +26,8 @@ jobs:
         include:
           - os: windows-latest
             compiler: "msvc"
+            asan: "off"
+            ipo: "off"
 
     steps:
       - uses: actions/checkout@v4
@@ -81,7 +83,8 @@ jobs:
           cmake -B "${{ steps.strings.outputs.build-output-dir }}"
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DBUILD_SHARED_LIBS=off
-          -Dnc_complex_ENABLE_IPO=OFF
+          -Dnc_complex_ENABLE_IPO=${{ matrix.ipo }}
+          -Dnc_complex_ENABLE_SANITIZER_ADDRESS=${{ matrix.asan }}
           -S "${{ github.workspace }}"
           -G Ninja
 
