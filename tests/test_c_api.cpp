@@ -380,6 +380,21 @@ TEST_CASE("Read test file") {
     }
 
     SECTION("Using nc_complex typed API") {
+        SECTION("Reading (double) dimensional variable with simple get_var") {
+            std::array<std::complex<double>, len_x> data_ri_out;
+            int var_ri_id = 0;
+            REQUIRE_NETCDF(nc_inq_varid(ncid, "data_ri", &var_ri_id));
+            REQUIRE(pfnc_var_is_complex(ncid, var_ri_id));
+            REQUIRE_NETCDF(
+                pfnc_get_var_double_complex(ncid, var_ri_id, to_c_complex(data_ri_out))
+            );
+
+            int var_ri_ndims = 0;
+            REQUIRE_NETCDF(pfnc_inq_varndims(ncid, var_ri_id, &var_ri_ndims));
+            REQUIRE(var_ri_ndims == 1);
+            REQUIRE(data_ri_out == double_data);
+        }
+
         SECTION("Reading (double) dimensional variable") {
             std::array<std::complex<double>, len_x> data_ri_out;
             int var_ri_id = 0;
@@ -627,7 +642,9 @@ TEST_CASE("Write complex-structure variable") {
         REQUIRE(base_type_id == NC_DOUBLE);
     }
 
-    REQUIRE_NETCDF(nc_put_var(ncid, var_struct_id, double_data.data()));
+    REQUIRE_NETCDF(
+        pfnc_put_var_double_complex(ncid, var_struct_id, to_c_complex(double_data))
+    );
 
     SECTION("Reading structure variable") {
         std::array<std::complex<double>, len_x> data_struct_out;

@@ -85,15 +85,15 @@ extern "C" {
 
 /// @name Complex datatype defines
 /// Datatype for complex numbers, for use with \rstref{pfnc_def_var}
-///  
+///
 /// @note
 /// These *only* work when defining a variable with \rstref{pfnc_def_var}. To
 /// check the type of an existing variable use \rstref{pfnc_var_is_complex}, and
 /// to check if it is specifically using a compound datatype or a dimension use
 /// \rstref{pfnc_var_is_complex_type} or \rstref{pfnc_var_has_complex_dimension}
 /// respectively.
-/// @endnote  
-///@{  
+/// @endnote
+///@{
 
 /// Uses complex compound datatype with netCDF4 format, and complex dimension otherwise
 #define PFNC_FLOAT_COMPLEX (NC_FIRSTUSERTYPEID - 4)
@@ -156,7 +156,7 @@ NC_COMPLEX_EXPORT const char* pfnc_inq_libvers(void);
 /// using a compound datatype!), and so if we use the standard netCDF
 /// API we would need to use `{5, 2}` for the `countp` arguments, for
 /// example, while using nc-complex, we only need `{5}`.
-///  
+///
 /// NOTE: The `pfnc_put/get*` functions do *not* currently handle
 /// conversion between `float/double` base types
 ///@{
@@ -171,6 +171,22 @@ NC_COMPLEX_EXPORT int pfnc_def_var(
     int ndims,
     const int* dimidsp,
     int* varidp
+);
+
+NC_COMPLEX_EXPORT int pfnc_get_var_double_complex(
+    int ncid, int varid, double_complex* ip
+);
+
+NC_COMPLEX_EXPORT int pfnc_put_var_double_complex(
+    int ncid, int varid, const double_complex* op
+);
+
+NC_COMPLEX_EXPORT int pfnc_get_var_float_complex(
+    int ncid, int varid, float_complex* ip
+);
+
+NC_COMPLEX_EXPORT int pfnc_put_var_float_complex(
+    int ncid, int varid, const float_complex* op
 );
 
 NC_COMPLEX_EXPORT int pfnc_put_vara_double_complex(
