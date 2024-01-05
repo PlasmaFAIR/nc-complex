@@ -39,8 +39,4 @@ endif()
 catch_discover_tests(
   test_c_api
   TEST_PREFIX "unittests."
-  REPORTER XML
-  OUTPUT_DIR .
-  OUTPUT_PREFIX "unittests."
-  OUTPUT_SUFFIX .xml
 )
