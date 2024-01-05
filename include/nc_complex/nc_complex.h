@@ -64,6 +64,7 @@ typedef float _Complex float_complex;
 /// @name Helper functions
 ///@{
 /// Helper functions for converting between (pointers to) C++ and C complex types
+namespace plasmafair {
 NC_COMPLEX_EXPORT inline double_complex* cpp_to_c_complex(std::complex<double>* data) {
     return reinterpret_cast<double_complex*>(data);
 }
@@ -78,6 +79,23 @@ NC_COMPLEX_EXPORT inline float_complex* cpp_to_c_complex(std::complex<float>* da
 
 NC_COMPLEX_EXPORT inline std::complex<float>* c_to_cpp_complex(float_complex* data) {
     return reinterpret_cast<std::complex<float>*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const double_complex* cpp_to_c_complex(const std::complex<double>* data) {
+    return reinterpret_cast<const double_complex*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const std::complex<double>* c_to_cpp_complex(const double_complex* data) {
+    return reinterpret_cast<const std::complex<double>*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const float_complex* cpp_to_c_complex(const std::complex<float>* data) {
+    return reinterpret_cast<const float_complex*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const std::complex<float>* c_to_cpp_complex(const float_complex* data) {
+    return reinterpret_cast<const std::complex<float>*>(data);
+}
 }
 ///@}
 extern "C" {
