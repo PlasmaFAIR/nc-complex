@@ -22,11 +22,11 @@ jobs:
       matrix:
         os: [windows-latest]
         build_type: [Debug]
-        c_compiler: [cl]
+        compiler: [msvc]
         include:
           - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
+            compiler: "msvc"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -55,6 +55,9 @@ jobs:
       - name: Setup Cpp
         uses: aminya/setup-cpp@v1
         with:
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+
           cmake: true
           ninja: true
 
@@ -76,8 +79,6 @@ jobs:
         # https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
           cmake -B "${{ steps.strings.outputs.build-output-dir }}"
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DBUILD_SHARED_LIBS=off
           -Dnc_complex_ENABLE_IPO=OFF
