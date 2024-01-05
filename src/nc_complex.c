@@ -34,6 +34,13 @@ static const size_t num_known_dim_names =
 
 static const char pfnc_libvers[] = NC_COMPLEX_GIT_VERSION;
 
+// C is a bit weird about inline functions in headers, they need
+// another declaration in a translation unit
+// NOLINTBEGIN(readability-redundant-declaration)
+extern inline int pfnc_inq_varndims(int ncid, int varid, int* ndimsp);
+extern inline int pfnc_inq_vardimid(int ncid, int varid, int* dimidsp);
+// NOLINTEND(readability-redundant-declaration)
+
 const char* pfnc_inq_libvers(void) {
     return pfnc_libvers;
 }
