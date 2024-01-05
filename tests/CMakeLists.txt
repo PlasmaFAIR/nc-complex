@@ -18,12 +18,24 @@ endif()
 
 include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
 
+add_library(test_utils
+  test_utilities.cpp
+  test_utilities.h
+)
+target_link_libraries(test_utils
+  PRIVATE
+  nc_complex_warnings
+  nc_complex_options
+  PUBLIC
+  plasmafair::nc_complex
+)
+
 add_executable(test_c_api test_c_api.cpp)
 target_link_libraries(test_c_api
   PRIVATE
   nc_complex_warnings
   nc_complex_options
-  plasmafair::nc_complex
+  test_utils
   Catch2::Catch2WithMain
 )
 target_compile_features(test_c_api PUBLIC cxx_std_17)

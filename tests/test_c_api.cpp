@@ -6,201 +6,14 @@
 #include <cstddef>
 #include <cstdio>
 #include <filesystem>
-#include <ostream>
 #include <stdexcept>
 #include <string>
 
 #include "nc_complex/nc_complex.h"
+#include "test_utilities.h"
 
 namespace fs = std::filesystem;
-
-constexpr int len_x = 6;
-constexpr int len_ri = 2;
-
-constexpr std::array<std::complex<double>, len_x> double_data = {
-    {{0., 1.}, {2., 3.}, {4., 5.}, {6., 7.}, {8., 9.}, {10., 11.}}
-};
-constexpr std::array<std::complex<float>, len_x> float_data = {
-    {{0.f, 1.f}, {2.f, 3.f}, {4.f, 5.f}, {6.f, 7.f}, {8.f, 9.f}, {10.f, 11.f}}
-};
-
-constexpr std::array<std::complex<double>, len_x / 2> double_strided_data = {
-    {{2., 3.}, {6., 7.}, {10., 11.}}
-};
-constexpr std::array<std::complex<float>, len_x / 2> float_strided_data = {
-    {{2.f, 3.f}, {6.f, 7.f}, {10.f, 11.f}}
-};
-
-constexpr std::array<size_t, NC_MAX_VAR_DIMS> zeros = {0};
-
-#define PFNC_CHECK(func)                                        \
-    do {                                                        \
-        if (const auto res = (func)) {                          \
-            printf(                                             \
-                "Bailing out in file %s, line %d, error:%s.\n", \
-                __FILE__,                                       \
-                __LINE__,                                       \
-                nc_strerror(res)                                \
-            );                                                  \
-            return res;                                         \
-        }                                                       \
-    } while (0)
-
-constexpr auto pfnc_complex_dir = "nc_complex_tests";
-
-auto test_directory() {
-    auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
-    fs::create_directory(test_dir);
-    return test_dir;
-}
-
-struct NetCDFResult {
-    explicit NetCDFResult(int result) : ierr(result) {}
-    operator bool() const { return ierr == NC_NOERR; }
-    operator int() const { return ierr; }
-
-private:
-    int ierr{-1};
-};
-
-std::ostream& operator<<(std::ostream& os, NetCDFResult const& value) {
-    os << nc_strerror(value);
-    return os;
-}
-
-/// Helper macro for `REQUIRE` that takes a call to a netCDF function and checks it
-/// returns ok
-#define REQUIRE_NETCDF(funccall) REQUIRE(NetCDFResult{funccall})
-
-template <std::size_t N>
-inline double_complex* to_c_complex(std::array<std::complex<double>, N>& data) {
-    return reinterpret_cast<double_complex*>(data.data());
-}
-
-template <std::size_t N>
-inline const double_complex* to_c_complex(
-    const std::array<std::complex<double>, N>& data
-) {
-    return reinterpret_cast<const double_complex*>(data.data());
-}
-
-template <std::size_t N>
-inline float_complex* to_c_complex(std::array<std::complex<float>, N>& data) {
-    return reinterpret_cast<float_complex*>(data.data());
-}
-
-/// Create a netCDF file with a variety of complex conventions
-int create_file(const fs::path& filename) {
-    fs::remove(filename);
-
-    int ncid = 0;
-    PFNC_CHECK(nc_create(filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
-
-    int x_dim_id = 0;
-    PFNC_CHECK(nc_def_dim(ncid, "x", len_x, &x_dim_id));
-
-    int ri_dim_id = 0;
-    PFNC_CHECK(nc_def_dim(ncid, "ri", len_ri, &ri_dim_id));
-
-    const std::array<int, 2> dimids{{x_dim_id, ri_dim_id}};
-    {
-        ////////////////////
-        // Double variables
-
-        int var_ri = 0;
-        PFNC_CHECK(nc_def_var(ncid, "data_ri", NC_DOUBLE, 2, dimids.data(), &var_ri));
-
-        int type_id = 0;
-        PFNC_CHECK(nc_def_compound(
-            ncid, sizeof(std::complex<double>), "my_double_complex", &type_id
-        ));
-        PFNC_CHECK(nc_insert_compound(ncid, type_id, "r", 0, NC_DOUBLE));
-        PFNC_CHECK(nc_insert_compound(ncid, type_id, "i", sizeof(double), NC_DOUBLE));
-        int var_struct_id = 0;
-        const std::array<int, 1> dim_struct_ids{{x_dim_id}};
-        PFNC_CHECK(nc_def_var(
-            ncid, "data_struct", type_id, 1, dim_struct_ids.data(), &var_struct_id
-        ));
-
-        int long_names_type_id = 0;
-        PFNC_CHECK(nc_def_compound(
-            ncid,
-            sizeof(std::complex<double>),
-            "long_names_double_complex",
-            &long_names_type_id
-        ));
-        PFNC_CHECK(nc_insert_compound(ncid, long_names_type_id, "Real", 0, NC_DOUBLE));
-        PFNC_CHECK(nc_insert_compound(
-            ncid, long_names_type_id, "Imag", sizeof(double), NC_DOUBLE
-        ));
-        int var_long_names_id = 0;
-        const std::array<int, 1> dim_long_names_ids{{x_dim_id}};
-        PFNC_CHECK(nc_def_var(
-            ncid,
-            "data_long_names",
-            long_names_type_id,
-            1,
-            dim_long_names_ids.data(),
-            &var_long_names_id
-        ));
-
-        PFNC_CHECK(nc_put_var(ncid, var_ri, double_data.data()));
-        PFNC_CHECK(nc_put_var(ncid, var_struct_id, double_data.data()));
-        PFNC_CHECK(nc_put_var(ncid, var_long_names_id, double_data.data()));
-    }
-
-    {
-        ////////////////////
-        // Float variables
-
-        int var_ri = 0;
-        PFNC_CHECK(
-            nc_def_var(ncid, "data_ri_float", NC_FLOAT, 2, dimids.data(), &var_ri)
-        );
-
-        int type_id = 0;
-        PFNC_CHECK(nc_def_compound(
-            ncid, sizeof(std::complex<float>), "my_float_complex", &type_id
-        ));
-        PFNC_CHECK(nc_insert_compound(ncid, type_id, "r", 0, NC_FLOAT));
-        PFNC_CHECK(nc_insert_compound(ncid, type_id, "i", sizeof(float), NC_FLOAT));
-        int var_struct_id = 0;
-        const std::array<int, 1> dim_struct_ids{{x_dim_id}};
-        PFNC_CHECK(nc_def_var(
-            ncid, "data_struct_float", type_id, 1, dim_struct_ids.data(), &var_struct_id
-        ));
-
-        int long_names_type_id = 0;
-        PFNC_CHECK(nc_def_compound(
-            ncid,
-            sizeof(std::complex<float>),
-            "long_names_float_complex",
-            &long_names_type_id
-        ));
-        PFNC_CHECK(nc_insert_compound(ncid, long_names_type_id, "Real", 0, NC_FLOAT));
-        PFNC_CHECK(nc_insert_compound(
-            ncid, long_names_type_id, "Imag", sizeof(float), NC_FLOAT
-        ));
-        int var_long_names_id = 0;
-        const std::array<int, 1> dim_long_names_ids{{x_dim_id}};
-        PFNC_CHECK(nc_def_var(
-            ncid,
-            "data_long_names_float",
-            long_names_type_id,
-            1,
-            dim_long_names_ids.data(),
-            &var_long_names_id
-        ));
-
-        PFNC_CHECK(nc_put_var(ncid, var_ri, float_data.data()));
-        PFNC_CHECK(nc_put_var(ncid, var_struct_id, float_data.data()));
-        PFNC_CHECK(nc_put_var(ncid, var_long_names_id, float_data.data()));
-    }
-
-    PFNC_CHECK(nc_close(ncid));
-
-    return 0;
-}
+using namespace plasmafair::nc_complex::testing;
 
 TEST_CASE("Read test file") {
     using namespace std::string_literals;
@@ -599,6 +412,8 @@ TEST_CASE("Read test file") {
             REQUIRE(data_long_names_out == float_strided_data);
         }
     }
+
+    REQUIRE_NETCDF(nc_close(ncid));
 }
 
 TEST_CASE("Write complex-structure variable") {
