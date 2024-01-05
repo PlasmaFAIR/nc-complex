@@ -80,6 +80,7 @@ function(
         target_compile_options(${project_name} INTERFACE /fsanitize=${LIST_OF_SANITIZERS} /Zi /INCREMENTAL:NO)
         target_compile_definitions(${project_name} INTERFACE _DISABLE_VECTOR_ANNOTATION _DISABLE_STRING_ANNOTATION)
         target_link_options(${project_name} INTERFACE /INCREMENTAL:NO)
+        set_property(TARGET ${project_name} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
       endif()
     endif()
   endif()
