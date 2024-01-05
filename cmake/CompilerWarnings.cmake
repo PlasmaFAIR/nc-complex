@@ -34,6 +34,7 @@ function(
         /w14905 # wide string literal cast to 'LPSTR'
         /w14906 # string literal cast to 'LPWSTR'
         /w14928 # illegal copy-initialization; more than one user-defined conversion has been implicitly applied
+        /wd4706 # disable "assignment within conditional expression" -- used in CHECK macros
         /permissive- # standards conformance mode for MSVC compiler.
     )
   endif()
@@ -94,9 +95,6 @@ function(
     set(PROJECT_WARNINGS_CXX ${CLANG_WARNINGS})
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(PROJECT_WARNINGS_CXX ${GCC_WARNINGS})
-  else()
-    message(AUTHOR_WARNING "No compiler warnings set for CXX compiler: '${CMAKE_CXX_COMPILER_ID}'")
-    # TODO support Intel compiler
   endif()
 
   # use the same warning flags for C

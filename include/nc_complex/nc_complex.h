@@ -18,10 +18,25 @@
 #define NC_COMPLEX_EXPORT
 #endif
 
+// This is a workaround for MSVC's frustratingly incomplete support
+// for complex numbers. When compiling with C++17, the complex.h
+// header is broken unless the following escape hatch is used. See
+// https://github.com/microsoft/STL/issues/3280 for more details
+
+// NOLINTBEGIN(bugprone-reserved-identifier)
+#ifdef _MSC_VER
+#define _CRT_USE_C_COMPLEX_H
+#endif
 #include <complex.h>
-#include <netcdf.h>
+#ifdef _MSC_VER
+#undef _CRT_USE_C_COMPLEX_H
+#endif
+// NOLINTEND(bugprone-reserved-identifier)
+
 #include <stdbool.h>
 #include <stddef.h>
+
+#include <netcdf.h>
 
 #ifdef __cplusplus
 #include <complex>

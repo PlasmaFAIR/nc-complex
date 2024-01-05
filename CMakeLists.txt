@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(nc-complex
   DESCRIPTION "Complex numbers for netCDF"
   VERSION 0.1.0
-  LANGUAGES C CXX Fortran)
+  LANGUAGES C CXX)
 
 include(cmake/PreventInSourceBuilds.cmake)
 include(ProjectOptions.cmake)
@@ -31,6 +31,10 @@ target_compile_features(nc_complex_options INTERFACE
   c_std_${CMAKE_C_STANDARD}
 )
 
+if (nc_complex_ENABLE_Fortran)
+  enable_language(Fortran)
+endif()
+
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(netCDF REQUIRED)
 
@@ -42,7 +46,8 @@ if (PROJECT_IS_TOP_LEVEL)
     add_subdirectory(tests)
   endif()
 
-  if (nc_complex_BUILD_EXAMPLES)
+  # MSVC doesn't really handle complex numbers in C
+  if (nc_complex_BUILD_EXAMPLES AND NOT WIN32)
     add_subdirectory(examples/C)
   endif()
 endif()
