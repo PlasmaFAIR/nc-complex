@@ -9,10 +9,11 @@
 #include <filesystem>
 #include <ostream>
 #include <string_view>
+#include <vector>
 
 #include "nc_complex/nc_complex.h"
 
-namespace plasmafair::nc_complex::testing {
+namespace nc_complex::testing {
 
 constexpr int len_x = 6;
 constexpr int len_ri = 2;
@@ -102,4 +103,13 @@ inline float_complex* to_c_complex(std::array<std::complex<float>, N>& data) {
 
 NC_COMPLEX_EXPORT int create_file(const std::filesystem::path& filename);
 
-}  // namespace plasmafair::nc_complex::testing
+template <class T, std::size_t N>
+std::vector<T> fill_sequence() {
+    std::vector<T> data(N);
+    for (size_t i = 0; i < N; i++) {
+        data[i] = static_cast<T>(i);
+    }
+    return data;
+}
+
+}  // namespace nc_complex::testing

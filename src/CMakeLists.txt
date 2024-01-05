@@ -48,3 +48,33 @@ add_custom_target(
   COMMENT "Generating git version information"
   )
 add_dependencies(nc_complex version_header)
+
+
+if (nc_complex_BUILD_CXX)
+  add_library(nc_complex_cpp nc_complex_cpp.cpp)
+  add_library(plasmafair::nc_complex_cpp ALIAS nc_complex_cpp)
+
+  target_include_directories(nc_complex_cpp
+    ${WARNING_GUARD}
+    PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  )
+
+  target_link_libraries(nc_complex_cpp
+    PUBLIC
+    netCDF::netcdf-cxx4
+    nc_complex
+    PRIVATE
+    nc_complex_warnings
+    nc_complex_options
+  )
+
+  target_compile_features(nc_complex_cpp PUBLIC cxx_std_17)
+
+  set_target_properties(nc_complex_cpp PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_RPATH_USE_ORIGIN TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE
+    )
+endif()

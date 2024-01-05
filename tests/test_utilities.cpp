@@ -1,11 +1,11 @@
 #include "test_utilities.h"
 
 namespace fs = std::filesystem;
-namespace plasmafair::nc_complex::testing {
+namespace nc_complex::testing {
 
 /// Create a netCDF file with a variety of complex conventions
 
-int create_file(const fs::path& filename) {
+NC_COMPLEX_EXPORT int create_file(const fs::path& filename) {
     fs::remove(filename);
 
     int ncid = 0;
@@ -117,4 +117,4 @@ int create_file(const fs::path& filename) {
     return 0;
 }
 
-}  // namespace plasmafair::nc_complex::testing
+}  // namespace nc_complex::testing

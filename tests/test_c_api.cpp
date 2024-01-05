@@ -12,7 +12,7 @@
 #include "nc_complex/nc_complex.h"
 #include "test_utilities.h"
 
-using namespace plasmafair::nc_complex::testing;
+using namespace nc_complex::testing;
 
 TEST_CASE("Read test file") {
     using namespace std::string_literals;

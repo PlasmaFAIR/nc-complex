@@ -64,7 +64,7 @@ typedef float _Complex float_complex;
 /// @name Helper functions
 ///@{
 /// Helper functions for converting between (pointers to) C++ and C complex types
-namespace plasmafair {
+namespace nc_complex {
 NC_COMPLEX_EXPORT inline double_complex* cpp_to_c_complex(std::complex<double>* data) {
     return reinterpret_cast<double_complex*>(data);
 }

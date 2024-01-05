@@ -50,5 +50,23 @@ endif()
 
 catch_discover_tests(
   test_c_api
-  TEST_PREFIX "unittests."
+  TEST_PREFIX "unittests.c."
 )
+
+if (nc_complex_BUILD_CXX)
+  add_executable(test_cpp_api test_cpp_api.cpp)
+  target_link_libraries(test_cpp_api
+    PRIVATE
+    nc_complex_warnings
+    nc_complex_options
+    test_utils
+    plasmafair::nc_complex_cpp
+    Catch2::Catch2WithMain
+  )
+  target_compile_features(test_cpp_api PUBLIC cxx_std_17)
+
+  catch_discover_tests(
+    test_cpp_api
+    TEST_PREFIX "unittests.cpp."
+  )
+endif()

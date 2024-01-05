@@ -2,9 +2,9 @@ nc-complex
 ==========
 
 `nc-complex` is a lightweight, drop-in extension for netCDF that
-handles reading and writing complex numbers. Currently there is just a
-C API, but this is being integrated into [netcdf4-python][netcdf4],
-and C++ and Fortran APIs are planned.
+handles reading and writing complex numbers. Currently there are C and
+C++ APIs, and it has been integrated into [netcdf4-python][netcdf4]. A
+Fortran API is also planned.
 
 The `nc-complex` library understands most of the major existing
 conventions for storing complex numbers, including as a compound
@@ -70,6 +70,35 @@ traditional netCDF API would require `starts` and `counts` to be of
 length two -- however, `nc-complex` handles all this under the hood,
 and so the same snippet above will work the same, whichever convention
 is being used in the file.
+
+C++
+---
+
+The C++ API inherits from the [netcdf-cxx4][netcdf_cxx4] API and aims
+to be a completely drop-in replacement. Just `#include` our header and
+change the `netCDF::` namespace to `nc_complex::`:
+
+```C++
+#include "nc_complex/nc_complex_cpp.h"
+
+nc_complex::NcFile nc_file{filename, nc_complex::NcFile::FileMode::read};
+```
+
+If you already have `using namespace netCDF`, changing this to `using
+namespace nc_complex` should be sufficient to start using complex
+numbers.
+
+`NcVar::putVar` and `NcVar::getVar` will accept pointers to complex
+numbers, and you can define a new variable with a complex type like
+so:
+
+```C++
+using namespace nc_complex;
+NcFile nc_file{full_filename, NcFile::FileMode::newFile};
+const NcDim x_dim = nc_file.addDim("x", len_x);
+auto var = nc_file.addVar("data", NcDoubleComplex{}, x_dim);
+```
+
 
 Limitations
 -----------
@@ -320,6 +349,7 @@ Licence
 `nc-complex` is released under the MIT licence.
 
 [netcdf4]: http://unidata.github.io/netcdf4-python/
+[netcdf_cxx4]: https://github.com/Unidata/netcdf-cxx4
 [cpp_memcpy_example]: https://en.cppreference.com/w/c/language/arithmetic_types#Complex_floating_types
 [h5py]: https://docs.h5py.org/en/stable/index.html
 [hdf5jl]: https://juliaio.github.io/HDF5.jl/stable/

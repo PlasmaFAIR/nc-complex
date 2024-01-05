@@ -28,6 +28,13 @@ macro(nc_complex_setup_options)
     ON
     nc_complex_ENABLE_HARDENING
     OFF)
+  option(nc_complex_BUILD_CXX "Build C++ API" OFF)
+  cmake_dependent_option(
+    nc_complex_DOWNLOAD_NETCDF_CXX
+    "Download and build netCDF C++ API automatically (recommended)"
+    ON
+    nc_complex_BUILD_CXX
+    OFF)
 
   nc_complex_supports_sanitizers()
 
