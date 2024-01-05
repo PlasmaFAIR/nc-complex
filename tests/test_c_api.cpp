@@ -207,9 +207,14 @@ TEST_CASE("Read test file") {
 
     const auto test_file = test_directory() / "test_read.nc";
 
-    if (const auto res = create_file(test_file)) {
-        const std::string error = nc_strerror(res);
-        throw std::runtime_error("Couldn't create file: "s + error);
+    // Only create the file for the first test case
+    static bool first_run = true;
+    if (first_run) {
+        if (const auto res = create_file(test_file)) {
+            const std::string error = nc_strerror(res);
+            throw std::runtime_error("Couldn't create file: "s + error);
+        }
+        first_run = false;
     }
 
     int ncid = 0;
