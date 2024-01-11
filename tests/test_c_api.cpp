@@ -12,7 +12,6 @@
 #include "nc_complex/nc_complex.h"
 #include "test_utilities.h"
 
-namespace fs = std::filesystem;
 using namespace plasmafair::nc_complex::testing;
 
 TEST_CASE("Read test file") {
@@ -417,13 +416,10 @@ TEST_CASE("Read test file") {
 }
 
 TEST_CASE("Write complex-structure variable") {
-    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
-    fs::create_directory(test_dir);
-    const auto full_filename = test_dir / "test_write_struct.nc";
-    fs::remove(full_filename);
+    const auto full_filename = test_file("test_write_struct.nc");
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -524,13 +520,10 @@ TEST_CASE("Write complex-structure variable") {
 }
 
 TEST_CASE("Write complex-dimensioned variable") {
-    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
-    fs::create_directory(test_dir);
-    const auto full_filename = test_dir / "test_write_dim.nc";
-    fs::remove(full_filename);
+    const auto full_filename = test_file("test_write_dim.nc");
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -642,13 +635,10 @@ TEST_CASE("Write complex-dimensioned variable") {
 }
 
 TEST_CASE("Write custom-type variable") {
-    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
-    fs::create_directory(test_dir);
-    const auto full_filename = test_dir / "test_write_custom_type.nc";
-    fs::remove(full_filename);
+    const auto full_filename = test_file("test_write_custom_type.nc");
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -730,13 +720,10 @@ TEST_CASE("Write custom-type variable") {
 }
 
 TEST_CASE("Write custom-type variable (netCDF3)") {
-    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
-    fs::create_directory(test_dir);
-    const auto full_filename = test_dir / "test_write_custom_type_netcdf3.nc";
-    fs::remove(full_filename);
+    const auto full_filename = test_file("test_write_custom_type_netcdf3.nc");
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));
@@ -820,13 +807,10 @@ TEST_CASE("Write custom-type variable (netCDF3)") {
 }
 
 TEST_CASE("Write custom-type variable with pre-existing type") {
-    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
-    fs::create_directory(test_dir);
-    const auto full_filename = test_dir / "test_write_preexisting_type.nc";
-    fs::remove(full_filename);
+    const auto full_filename = test_file("test_write_preexisting_type.nc");
 
     int ncid = 0;
-    REQUIRE_NETCDF(nc_create(full_filename.string().c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
+    REQUIRE_NETCDF(nc_create(full_filename.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid));
 
     int x_dim_id = 0;
     REQUIRE_NETCDF(nc_def_dim(ncid, "x", len_x, &x_dim_id));

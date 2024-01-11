@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <ostream>
+#include <string_view>
 
 #include "nc_complex/nc_complex.h"
 
@@ -52,6 +53,16 @@ inline auto test_directory() {
     auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
     fs::create_directory(test_dir);
     return test_dir;
+}
+
+/// Ensure the test directory exists and `filename` does *not* exist in it
+inline auto test_file(std::string_view filename) {
+    namespace fs = std::filesystem;
+    const auto test_dir = fs::temp_directory_path() / pfnc_complex_dir;
+    fs::create_directory(test_dir);
+    const auto full_filename = test_dir / filename;
+    fs::remove(full_filename);
+    return full_filename.string();
 }
 
 struct NetCDFResult {
