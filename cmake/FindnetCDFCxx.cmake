@@ -25,10 +25,10 @@
 # ``netCDFCxx_DEBUG``
 #   Set to TRUE to get extra debugging output
 
-include(BOUT++functions)
+include(nc_complex_functions)
 
-if (NOT netCDFCxx_ROOT AND EXISTS "${BOUT_USE_NETCDF}")
-  set(netCDFCxx_ROOT "${BOUT_USE_NETCDF}")
+if (NOT netCDFCxx_ROOT AND EXISTS "${NC_COMPLEX_USE_NETCDF}")
+  set(netCDFCxx_ROOT "${NC_COMPLEX_USE_NETCDF}")
 endif()
 
 if (NOT EXISTS ${NCXX4_CONFIG})
@@ -37,7 +37,7 @@ if (NOT EXISTS ${NCXX4_CONFIG})
   if (netCDFCxx_FOUND)
     set(netCDFCxx_FOUND TRUE)
     if (NOT TARGET netCDF::netcdf-cxx4)
-      bout_add_library_alias(netCDF::netcdf-cxx4 netcdf-cxx4)
+      nc_complex_add_library_alias(netCDF::netcdf-cxx4 netcdf-cxx4)
     endif()
     return()
   endif()
@@ -63,8 +63,8 @@ if (netCDFCxx_DEBUG)
     " NCXX4_CONFIG_LOCATION = ${NCXX4_CONFIG_LOCATION}")
 endif()
 
-bout_inspect_netcdf_config(NCXX4_HINTS_INCLUDE_DIR "${NCXX4_CONFIG}" "--includedir")
-bout_inspect_netcdf_config(NCXX4_HINTS_PREFIX "${NCXX4_CONFIG}" "--prefix")
+inspect_netcdf_config(NCXX4_HINTS_INCLUDE_DIR "${NCXX4_CONFIG}" "--includedir")
+inspect_netcdf_config(NCXX4_HINTS_PREFIX "${NCXX4_CONFIG}" "--prefix")
 
 find_path(netCDF_CXX_INCLUDE_DIR
   NAMES netcdf
@@ -105,7 +105,7 @@ if (netCDFCxx_DEBUG)
 endif()
 mark_as_advanced(netCDF_CXX_LIBRARY)
 
-bout_inspect_netcdf_config(_ncxx4_version "${NCXX4_CONFIG}" "--version")
+inspect_netcdf_config(_ncxx4_version "${NCXX4_CONFIG}" "--version")
 if (_ncxx4_version)
   # Change to lower case before matching, to avoid case problems
   string(TOLOWER "${_ncxx4_version}" _ncxx4_version_lower)

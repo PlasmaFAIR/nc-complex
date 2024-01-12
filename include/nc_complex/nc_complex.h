@@ -64,6 +64,7 @@ typedef float _Complex float_complex;
 /// @name Helper functions
 ///@{
 /// Helper functions for converting between (pointers to) C++ and C complex types
+namespace nc_complex {
 NC_COMPLEX_EXPORT inline double_complex* cpp_to_c_complex(std::complex<double>* data) {
     return reinterpret_cast<double_complex*>(data);
 }
@@ -79,21 +80,38 @@ NC_COMPLEX_EXPORT inline float_complex* cpp_to_c_complex(std::complex<float>* da
 NC_COMPLEX_EXPORT inline std::complex<float>* c_to_cpp_complex(float_complex* data) {
     return reinterpret_cast<std::complex<float>*>(data);
 }
+
+NC_COMPLEX_EXPORT inline const double_complex* cpp_to_c_complex(const std::complex<double>* data) {
+    return reinterpret_cast<const double_complex*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const std::complex<double>* c_to_cpp_complex(const double_complex* data) {
+    return reinterpret_cast<const std::complex<double>*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const float_complex* cpp_to_c_complex(const std::complex<float>* data) {
+    return reinterpret_cast<const float_complex*>(data);
+}
+
+NC_COMPLEX_EXPORT inline const std::complex<float>* c_to_cpp_complex(const float_complex* data) {
+    return reinterpret_cast<const std::complex<float>*>(data);
+}
+}
 ///@}
 extern "C" {
 #endif
 
 /// @name Complex datatype defines
 /// Datatype for complex numbers, for use with \rstref{pfnc_def_var}
-///  
+///
 /// @note
 /// These *only* work when defining a variable with \rstref{pfnc_def_var}. To
 /// check the type of an existing variable use \rstref{pfnc_var_is_complex}, and
 /// to check if it is specifically using a compound datatype or a dimension use
 /// \rstref{pfnc_var_is_complex_type} or \rstref{pfnc_var_has_complex_dimension}
 /// respectively.
-/// @endnote  
-///@{  
+/// @endnote
+///@{
 
 /// Uses complex compound datatype with netCDF4 format, and complex dimension otherwise
 #define PFNC_FLOAT_COMPLEX (NC_FIRSTUSERTYPEID - 4)
@@ -156,7 +174,7 @@ NC_COMPLEX_EXPORT const char* pfnc_inq_libvers(void);
 /// using a compound datatype!), and so if we use the standard netCDF
 /// API we would need to use `{5, 2}` for the `countp` arguments, for
 /// example, while using nc-complex, we only need `{5}`.
-///  
+///
 /// NOTE: The `pfnc_put/get*` functions do *not* currently handle
 /// conversion between `float/double` base types
 ///@{
@@ -171,6 +189,22 @@ NC_COMPLEX_EXPORT int pfnc_def_var(
     int ndims,
     const int* dimidsp,
     int* varidp
+);
+
+NC_COMPLEX_EXPORT int pfnc_get_var_double_complex(
+    int ncid, int varid, double_complex* ip
+);
+
+NC_COMPLEX_EXPORT int pfnc_put_var_double_complex(
+    int ncid, int varid, const double_complex* op
+);
+
+NC_COMPLEX_EXPORT int pfnc_get_var_float_complex(
+    int ncid, int varid, float_complex* ip
+);
+
+NC_COMPLEX_EXPORT int pfnc_put_var_float_complex(
+    int ncid, int varid, const float_complex* op
 );
 
 NC_COMPLEX_EXPORT int pfnc_put_vara_double_complex(

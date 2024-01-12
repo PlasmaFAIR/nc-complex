@@ -19,7 +19,8 @@
     } while (0)
 // NOLINTEND(bugprone-assignment-in-if-condition)
 
-// Vector of ones for get/put_var1 functions
+// Vector of zeros/ones for get/put_var1 functions
+static const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
 static const size_t coord_one[NC_MAX_VAR_DIMS] = {1};
 
 static const char* double_complex_struct_name = "_PFNC_DOUBLE_COMPLEX_TYPE";
@@ -33,6 +34,13 @@ static const size_t num_known_dim_names =
     sizeof(known_dim_names) / sizeof(known_dim_names[0]);
 
 static const char pfnc_libvers[] = NC_COMPLEX_GIT_VERSION;
+
+// C is a bit weird about inline functions in headers, they need
+// another declaration in a translation unit
+// NOLINTBEGIN(readability-redundant-declaration)
+extern inline int pfnc_inq_varndims(int ncid, int varid, int* ndimsp);
+extern inline int pfnc_inq_vardimid(int ncid, int varid, int* dimidsp);
+// NOLINTEND(readability-redundant-declaration)
 
 const char* pfnc_inq_libvers(void) {
     return pfnc_libvers;
@@ -362,6 +370,49 @@ int pfnc_get_complex_dim(int ncid, int* nc_dim) {
 cleanup:
     free(dim_ids);
     return ierr;
+}
+
+/// Get array of dim sizes for a variable
+int pfnc_get_shape(int ncid, int varid, size_t* shape) {
+    int dimids[NC_MAX_VAR_DIMS];
+
+    int ndims = 0;
+    CHECK(pfnc_inq_varndims(ncid, varid, &ndims));
+
+    CHECK(nc_inq_vardimid(ncid, varid, dimids));
+    for (int i = 0; i < ndims; i++) {
+        CHECK(nc_inq_dimlen(ncid, dimids[i], &shape[i]));
+    }
+
+    return NC_NOERR;
+}
+
+int pfnc_get_var_double_complex(int ncid, int varid, double_complex* ip) {
+    size_t shape[NC_MAX_VAR_DIMS];
+    CHECK(pfnc_get_shape(ncid, varid, shape));
+
+    return pfnc_get_vars_double_complex(ncid, varid, coord_zero, shape, NULL, ip);
+}
+
+int pfnc_put_var_double_complex(int ncid, int varid, const double_complex* op) {
+    size_t shape[NC_MAX_VAR_DIMS];
+    CHECK(pfnc_get_shape(ncid, varid, shape));
+
+    return pfnc_put_vars_double_complex(ncid, varid, coord_zero, shape, NULL, op);
+}
+
+int pfnc_get_var_float_complex(int ncid, int varid, float_complex* ip) {
+    size_t shape[NC_MAX_VAR_DIMS];
+    CHECK(pfnc_get_shape(ncid, varid, shape));
+
+    return pfnc_get_vars_float_complex(ncid, varid, coord_zero, shape, NULL, ip);
+}
+
+int pfnc_put_var_float_complex(int ncid, int varid, const float_complex* op) {
+    size_t shape[NC_MAX_VAR_DIMS];
+    CHECK(pfnc_get_shape(ncid, varid, shape));
+
+    return pfnc_put_vars_float_complex(ncid, varid, coord_zero, shape, NULL, op);
 }
 
 int pfnc_put_vara_double_complex(
