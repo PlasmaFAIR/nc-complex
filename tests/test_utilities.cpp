@@ -5,7 +5,7 @@ namespace nc_complex::testing {
 
 /// Create a netCDF file with a variety of complex conventions
 
-NC_COMPLEX_EXPORT int create_file(const fs::path& filename) {
+int create_file(const fs::path& filename) {
     fs::remove(filename);
 
     int ncid = 0;

@@ -101,7 +101,7 @@ inline float_complex* to_c_complex(std::array<std::complex<float>, N>& data) {
     return reinterpret_cast<float_complex*>(data.data());
 }
 
-NC_COMPLEX_EXPORT int create_file(const std::filesystem::path& filename);
+int create_file(const std::filesystem::path& filename);
 
 template <class T, std::size_t N>
 std::vector<T> fill_sequence() {

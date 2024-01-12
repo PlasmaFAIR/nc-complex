@@ -19,6 +19,7 @@ endif()
 include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
 
 add_library(test_utils
+  STATIC
   test_utilities.cpp
   test_utilities.h
 )
